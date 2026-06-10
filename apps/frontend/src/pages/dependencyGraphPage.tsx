@@ -13,6 +13,7 @@ export default function DependencyGraphPage() {
   const [loading, setLoading] = useState(false);
   const [overview, setOverview] = useState<OverviewStats | null>(null);
   const [cycles, setCycles] = useState<string[][]>([]);
+  const [highlightedCycle, setHighlightedCycle] = useState<string[]>([]);
 
   async function analyze() {
     try {
@@ -67,12 +68,18 @@ export default function DependencyGraphPage() {
       {cycles && (
         <CyclePanel
           cycles={cycles}
+          onSelectCycle={
+            setHighlightedCycle
+          }
         />
       )}
 
       {graph && (
         <DependencyGraph
           graph={graph}
+           highlightedNodes={
+            highlightedCycle
+          }
         />
       )}
     </div>

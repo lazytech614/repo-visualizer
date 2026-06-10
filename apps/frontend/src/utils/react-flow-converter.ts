@@ -12,7 +12,8 @@ const NODE_WIDTH = 250;
 const NODE_HEIGHT = 60;
 
 export function convertToReactFlow(
-  graph: DependencyGraph
+  graph: DependencyGraph,
+  highlightedNodes: string[]
 ): {
   nodes: Node[];
   edges: Edge[];
@@ -38,6 +39,9 @@ export function convertToReactFlow(
 
   dagre.layout(dagreGraph);
 
+  const highlightedSet =
+  new Set(highlightedNodes);
+
   const nodes: Node[] =
     graph.nodes.map((node) => {
 
@@ -55,6 +59,15 @@ export function convertToReactFlow(
         position: {
           x: position.x,
           y: position.y,
+        },
+
+        style: {
+          border:
+            highlightedSet.has(
+              node.id
+            )
+              ? "3px solid red"
+              : "1px solid #ddd",
         },
       };
     });

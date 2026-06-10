@@ -11,10 +11,10 @@ import "reactflow/dist/style.css";
 import NodeDetails from "../sidebar/NodeDetails";
 import { convertToReactFlow } from "../../utils/react-flow-converter";
 
-export default function DependencyGraph({ graph }: any) {
+export default function DependencyGraph({ graph, highlightedNodes }: any) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
-  const { nodes, edges } = convertToReactFlow(graph);
+  const { nodes, edges } = convertToReactFlow(graph, highlightedNodes);
 
   return (
     <div className="flex w-full h-200">
