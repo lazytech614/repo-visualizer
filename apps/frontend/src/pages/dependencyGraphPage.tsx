@@ -5,7 +5,6 @@ import {
   Loader2,
   FolderOpen,
   AlertCircle,
-  RecycleIcon,
   RefreshCwIcon,
   Trash2Icon,
   AlertTriangleIcon,
@@ -175,34 +174,38 @@ export default function DependencyGraphPage() {
 
                 <Tabs defaultValue={defaultTab}>
                   <TabsList className="mb-4">
-                    <TabsTrigger value="cycles" disabled={cycles.length === 0}>
-                      <RefreshCwIcon className="h-4 w-4 sm:hidden" />
-                      <span className="hidden sm:inline">Circular dependencies</span>
-                      {cycles.length > 0 && (
-                        <Badge
-                          variant="destructive"
-                          className="ml-2 text-xs px-1.5 py-0"
-                        >
-                          {cycles.length}
-                        </Badge>
-                      )}
-                    </TabsTrigger>
+                    {cycles.length > 0 && (
+                      <TabsTrigger value="cycles" disabled={cycles.length === 0}>
+                        <RefreshCwIcon className="h-4 w-4 sm:hidden" />
+                        <span className="hidden sm:inline">Circular dependencies</span>
+                        {cycles.length > 0 && (
+                          <Badge
+                            variant="destructive"
+                            className="ml-2 text-xs px-1.5 py-0"
+                          >
+                            {cycles.length}
+                          </Badge>
+                        )}
+                      </TabsTrigger>
+                    )}
 
-                    <TabsTrigger
-                      value="dead-files"
-                      disabled={deadFiles.length === 0}
-                    >
-                      <Trash2Icon className="h-4 w-4 sm:hidden" />
-                      <span className="hidden sm:inline">Dead files</span>
-                      {deadFiles.length > 0 && (
-                        <Badge
-                          variant="secondary"
-                          className="ml-2 text-xs px-1.5 py-0 border border-white/20"
-                        >
-                          {deadFiles.length}
-                        </Badge>
-                      )}
-                    </TabsTrigger>
+                    {deadFiles.length > 0 && (
+                      <TabsTrigger
+                        value="dead-files"
+                        disabled={deadFiles.length === 0}
+                      >
+                        <Trash2Icon className="h-4 w-4 sm:hidden" />
+                        <span className="hidden sm:inline">Dead files</span>
+                        {deadFiles.length > 0 && (
+                          <Badge
+                            variant="secondary"
+                            className="ml-2 text-xs px-1.5 py-0 border border-white/20"
+                          >
+                            {deadFiles.length}
+                          </Badge>
+                        )}
+                      </TabsTrigger>
+                    )}
 
                     {hotspots &&hotspots.length > 0 && (
                       <TabsTrigger value="hotspots" disabled={hotspots.length === 0}>

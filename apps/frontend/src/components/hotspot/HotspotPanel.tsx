@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { AlertTriangle, Flame, ArrowLeft, ArrowRight, ArrowUpDown, FilterIcon } from "lucide-react";
+import {  ArrowLeft, ArrowRight, ArrowUpDown, FilterIcon } from "lucide-react";
 import { Input } from "../ui/input";
 
 interface Hotspot {
@@ -88,7 +88,7 @@ export default function HotspotPanel({
       </p>
 
       <div className="flex flex-col gap-y-4 mt-3">
-        <div className="flex flex-col gap-y-2">
+        <div className="flex flex-col gap-y-4">
             {/* Search */}
             <Input
                 type="text"
