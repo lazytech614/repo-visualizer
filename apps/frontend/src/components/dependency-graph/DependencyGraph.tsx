@@ -16,6 +16,7 @@ import { convertToReactFlow } from "../../utils/react-flow-converter";
 import { type TreeNode } from "../../types/repository";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Button } from "../ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 
 const nodeTypes = { fileNode: FileNode };
 
@@ -33,6 +34,7 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [activeTab, setActiveTab] = useState("tree");
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
 
   const isDragging = useRef(false);
@@ -47,6 +49,9 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
   function handleNodeClick(_: any, node: Node) {
     setSelectedNode(node);
     setActiveTab("details");
+    if (window.innerWidth < 768) {
+      setSheetOpen(true);
+    }
   }
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
@@ -72,12 +77,67 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
     document.addEventListener("mouseup", onMouseUp);
   }, [sidebarWidth]);
 
-  return (
-    <div className="flex w-full h-[90vh] overflow-hidden">
+  const sidebarContent = (
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full min-h-0 mt-3 md:mt-0">
+      <div className="flex items-center border-b border-border shrink-0">
+        <TabsList className="flex-1 rounded-none bg-transparent h-auto m-2">
+          <TabsTrigger
+            value="tree"
+            className="flex-1 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-xs gap-1.5 p-2.5 rounded-sm"
+          >
+            <FolderTree className="w-3.5 h-3.5" />
+            Files
+          </TabsTrigger>
+          <TabsTrigger
+            value="details"
+            className="flex-1 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-xs gap-1.5 p-2.5 rounded-sm"
+          >
+            <GitFork className="w-3.5 h-3.5" />
+            Details
+            {/* {selectedNode && <span className="w-1.5 h-1.5 rounded-full bg-primary" />} */}
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Sidebar */}
+        {/* Only show collapse button on desktop */}
+        <Button
+          variant="ghost" size="icon"
+          className="w-7 h-7 mr-1 shrink-0 hidden md:flex"
+          onClick={() => setIsCollapsed(true)}
+        >
+          <PanelLeftClose className="w-4 h-4" />
+        </Button>
+      </div>
+
+      <TabsContent value="tree" className="flex-1 mt-0 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden">
+        {tree ? <RepositoryTree tree={tree} /> : (
+          <div className="flex flex-col items-center justify-center h-full gap-2 text-center px-4">
+            <FolderTree className="w-8 h-8 text-muted-foreground/40" />
+            <p className="text-xs text-muted-foreground">No file tree available</p>
+          </div>
+        )}
+      </TabsContent>
+
+      <TabsContent value="details" className="flex-1 mt-0 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden">
+        {selectedNode ? (
+          <NodeDetails node={selectedNode} graph={graph} />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full gap-2 text-center px-4 pt-16">
+            <ChevronRight className="w-8 h-8 text-muted-foreground/40" />
+            <p className="text-xs text-muted-foreground">
+              Click a node in the graph to see its details
+            </p>
+          </div>
+        )}
+      </TabsContent>
+    </Tabs>
+  );
+
+  return (
+    <div className="flex w-full h-[calc(100svh-57px)] overflow-hidden">
+
+      {/* ── Desktop sidebar ── */}
       <div
-        className="h-full flex flex-col border-r border-border bg-card shrink-0 relative transition-[width] duration-200"
+        className="hidden md:flex h-full flex-col border-r border-border bg-card shrink-0 relative transition-[width] duration-200"
         style={{ width: isCollapsed ? "40px" : `${sidebarWidth}px` }}
       >
         {isCollapsed ? (
@@ -88,55 +148,7 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
           </div>
         ) : (
           <>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full min-h-0">
-              <div className="flex items-center border-b border-border shrink-0">
-                <TabsList className="flex-1 rounded-none bg-transparent h-auto m-2 mt-0">
-                  <TabsTrigger
-                    value="tree"
-                    className="flex-1 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-xs gap-1.5 p-2.5 rounded-sm"
-                  >
-                    <FolderTree className="w-3.5 h-3.5" />
-                    Files
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="details"
-                    className="flex-1 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-xs gap-1.5 p-2.5 rounded-sm"
-                  >
-                    <GitFork className="w-3.5 h-3.5" />
-                    Details
-                    {selectedNode && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
-                  </TabsTrigger>
-                </TabsList>
-                <Button
-                  variant="ghost" size="icon"
-                  className="w-7 h-7 mr-1 shrink-0"
-                  onClick={() => setIsCollapsed(true)}
-                >
-                  <PanelLeftClose className="w-4 h-4" />
-                </Button>
-              </div>
-
-              <TabsContent value="tree" className="flex-1 mt-0 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden">
-                {tree ? <RepositoryTree tree={tree} /> : (
-                  <div className="flex flex-col items-center justify-center h-full gap-2 text-center px-4">
-                    <FolderTree className="w-8 h-8 text-muted-foreground/40" />
-                    <p className="text-xs text-muted-foreground">No file tree available</p>
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="details" className="flex-1 mt-0 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden">
-                {selectedNode ? (
-                  <NodeDetails node={selectedNode} graph={graph} />
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full gap-2 text-center px-4 pt-16">
-                    <ChevronRight className="w-8 h-8 text-muted-foreground/40" />
-                    <p className="text-xs text-muted-foreground">Click a node in the graph to see its details</p>
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-
+            {sidebarContent}
             <div
               onMouseDown={onMouseDown}
               className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary/40 active:bg-primary/60 transition-colors z-10"
@@ -146,7 +158,7 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
       </div>
 
       {/* Graph */}
-      <div className="flex-1 h-full min-h-0">
+      <div className="flex-1 h-full min-h-0 relative">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -159,6 +171,7 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
         >
           <Controls className="[&>button]:bg-zinc-800 [&>button]:border-zinc-700 [&>button]:text-zinc-300 [&>button:hover]:bg-zinc-700" />
           <MiniMap
+            className="hidden sm:block"
             style={{ background: "#1a1a2e", border: "1px solid #3f3f5a" }}
             nodeColor={(node) => node.data?.highlighted ? "#ef4444" : "#4b5563"}
             maskColor="rgba(0,0,0,0.4)"
@@ -170,6 +183,24 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
             color="#2a2a3e"
           />
         </ReactFlow>
+
+        {/* ── Mobile sheet trigger — floating button over graph ── */}
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="md:hidden absolute top-3 left-3 z-10 gap-1.5 shadow-lg"
+            >
+              <FolderTree className="w-3.5 h-3.5" />
+              Files
+              {selectedNode && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[85vw] max-w-sm p-0 flex flex-col">
+            {sidebarContent}
+          </SheetContent>
+        </Sheet>
       </div>
 
     </div>

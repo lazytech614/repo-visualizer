@@ -76,19 +76,6 @@ export default function DependencyGraphPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary/10">
-            <GitFork className="w-4 h-4 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-sm font-semibold leading-none">Repo Visualizer</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">Dependency graph analysis</p>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Input card */}
         <Card>

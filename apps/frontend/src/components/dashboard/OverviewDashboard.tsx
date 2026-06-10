@@ -10,7 +10,7 @@ export default function OverviewDashboard({
 }: Props) {
 
   return (
-    <div className="w-full flex items-center justify-between gap-4">
+    <div className="w-full flex flex-wrap items-center justify-between gap-4">
       <StatsCard
         title="Total Files"
         value={stats.totalFiles}

@@ -10,7 +10,7 @@ export default function StatsCard({
 
   return (
     <div className="rounded-lg border border-white/10 flex-1 px-10 py-4">
-      <p>
+      <p className="whitespace-nowrap">
         {title}
       </p>
       <h2 className="font-bold text-2xl">
