@@ -32,6 +32,7 @@ import { Alert, AlertDescription } from "../components/ui/alert";
 import { Separator } from "../components/ui/separator";
 import { Badge } from "../components/ui/badge";
 import type { TreeNode } from "../types/repository";
+import AnalysisSkeleton from "../components/skeletons/AnalysisSkeleton";
 
 export default function DependencyGraphPage() {
   const [path, setPath] = useState("");
@@ -113,6 +114,8 @@ export default function DependencyGraphPage() {
             </div>
           </CardContent>
         </Card>
+
+        {loading && <AnalysisSkeleton />}
 
         {/* Error */}
         {error && (
