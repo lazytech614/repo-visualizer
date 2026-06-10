@@ -5,6 +5,10 @@ import {
   Loader2,
   FolderOpen,
   AlertCircle,
+  RecycleIcon,
+  RefreshCwIcon,
+  Trash2Icon,
+  AlertTriangleIcon,
 } from "lucide-react";
 import DependencyGraph from "../components/dependency-graph/DependencyGraph";
 import {
@@ -35,6 +39,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import type { TreeNode } from "../types/repository";
 import AnalysisSkeleton from "../components/skeletons/AnalysisSkeleton";
 import MostImportedFilesChart from "../components/charts/MostImportedFiles";
+import type { Hotspot } from "../types/hotspot";
+import HotspotPanel from "../components/hotspot/HotspotPanel";
 
 export default function DependencyGraphPage() {
   const [path, setPath] = useState("");
@@ -47,6 +53,7 @@ export default function DependencyGraphPage() {
   const [deadFiles, setDeadFiles] = useState<string[]>([]);
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [tree, setTree] = useState<TreeNode | null>(null);
+  const [hotspots, setHotspots] = useState<Hotspot[] | null>(null)
 
   async function analyze() {
     if (!path.trim()) return;
@@ -69,6 +76,7 @@ export default function DependencyGraphPage() {
       ]);
 
       setGraph(graphResponse.graph);
+      setHotspots(graphResponse.hotspots)
       setOverview(overviewResponse);
       setCycles(cycleResponse.cycles);
       setDeadFiles(deadFilesResponse.deadFiles);
@@ -152,8 +160,8 @@ export default function DependencyGraphPage() {
                   <h2 className="text-sm font-medium">Overview</h2>
                   <Separator className="flex-1" />
                 </div>
-                <MostImportedFilesChart data={overview.mostImportedFiles} />
                 <OverviewDashboard stats={overview} />
+                <MostImportedFilesChart data={overview.mostImportedFiles} />
               </div>
             )}
 
@@ -168,7 +176,8 @@ export default function DependencyGraphPage() {
                 <Tabs defaultValue={defaultTab}>
                   <TabsList className="mb-4">
                     <TabsTrigger value="cycles" disabled={cycles.length === 0}>
-                      <span>Circular dependencies</span>
+                      <RefreshCwIcon className="h-4 w-4 sm:hidden" />
+                      <span className="hidden sm:inline">Circular dependencies</span>
                       {cycles.length > 0 && (
                         <Badge
                           variant="destructive"
@@ -183,16 +192,32 @@ export default function DependencyGraphPage() {
                       value="dead-files"
                       disabled={deadFiles.length === 0}
                     >
-                      <span>Dead files</span>
+                      <Trash2Icon className="h-4 w-4 sm:hidden" />
+                      <span className="hidden sm:inline">Dead files</span>
                       {deadFiles.length > 0 && (
                         <Badge
                           variant="secondary"
-                          className="ml-2 text-xs px-1.5 py-0"
+                          className="ml-2 text-xs px-1.5 py-0 border border-white/20"
                         >
                           {deadFiles.length}
                         </Badge>
                       )}
                     </TabsTrigger>
+
+                    {hotspots &&hotspots.length > 0 && (
+                      <TabsTrigger value="hotspots" disabled={hotspots.length === 0}>
+                      <AlertTriangleIcon className="h-4 w-4 sm:hidden" />
+                      <span className="hidden sm:inline">Hotspots</span>
+                      {hotspots.length > 0 && (
+                        <Badge
+                          variant="destructive"
+                          className="ml-2 text-xs px-1.5 py-0"
+                        >
+                          {hotspots.length}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                    )}
                   </TabsList>
 
                   <TabsContent value="cycles">
@@ -204,6 +229,10 @@ export default function DependencyGraphPage() {
 
                   <TabsContent value="dead-files">
                     <DeadFilesPanel deadFiles={deadFiles} />
+                  </TabsContent>
+
+                  <TabsContent value="hotspots" className="flex-1 mt-0 min-h-0 overflow-y-auto">
+                    <HotspotPanel hotspots={hotspots || []} />
                   </TabsContent>
                 </Tabs>
               </div>

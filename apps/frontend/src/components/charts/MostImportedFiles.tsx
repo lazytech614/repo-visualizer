@@ -96,7 +96,7 @@ export default function MostImportedFilesChart({ data }: Props) {
 
   return (
     <div className="w-full">
-      <div className="mb-4 flex items-start justify-between">
+      <div className="flex items-start justify-between mb-2">
         <div>
           <h2 className="text-xs font-medium">Most imported files</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -130,7 +130,12 @@ export default function MostImportedFilesChart({ data }: Props) {
               domain={[0, max]}
               tickCount={max + 1}
               allowDecimals={false}
-              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ 
+                fontSize: 11, 
+                fill: "#e2e8f0", 
+                fontWeight: 500, 
+                fontFamily: "monospace" 
+              }}
               axisLine={false}
               tickLine={false}
             />
@@ -141,7 +146,7 @@ export default function MostImportedFilesChart({ data }: Props) {
               tick={{
                 fontSize: 11,
                 fontFamily: "monospace",
-                fill: "#e2e8f0", // slate-200 — always visible on dark bg
+                fill: "#e2e8f0", 
                 fontWeight: 500,
               }}
               axisLine={false}

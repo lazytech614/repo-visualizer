@@ -6,12 +6,8 @@ export interface FileCount {
 export interface DependencyStats {
   totalFiles: number;
   totalDependencies: number;
-
   averageDependenciesPerFile: number;
-
-  mostImportedFiles: FileCount[];
-
+  mostImportedFiles: FileCount[]
   mostDependentFiles: FileCount[];
-
   isolatedFiles: string[];
 }

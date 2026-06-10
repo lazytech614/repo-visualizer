@@ -4,20 +4,59 @@ export default function AnalysisSkeleton() {
   return (
     <div className="space-y-8">
       {/* Overview skeleton */}
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <Skeleton className="h-5 w-16 rounded-full" />
-          <Skeleton className="h-px flex-1" />
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {["Total Files", "Directories", "Dependencies", "Cycle Count"].map((label) => (
-            <div key={label} className="rounded-lg border border-border p-4 space-y-2">
-              <Skeleton className="h-3 w-20" />
-              <Skeleton className="h-8 w-8 rounded-full" />
-            </div>
-          ))}
-        </div>
+<div>
+  <div className="flex items-center gap-2 mb-4">
+    <Skeleton className="h-5 w-16 rounded-full" />
+    <Skeleton className="h-px flex-1" />
+  </div>
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {["Total Files", "Directories", "Dependencies", "Cycle Count"].map((label) => (
+      <div key={label} className="rounded-lg border border-border p-4 space-y-2">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-8 w-8 rounded-full" />
       </div>
+    ))}
+  </div>
+</div>
+
+{/* Chart skeleton */}
+<div className="mt-8">
+  {/* Header */}
+  <div className="flex items-start justify-between mb-4">
+    <div className="space-y-1.5">
+      <Skeleton className="h-4 w-36" />
+      <Skeleton className="h-3 w-56" />
+    </div>
+    {/* Legend pill */}
+    <div className="flex items-center gap-2 mt-0.5">
+      <Skeleton className="h-3 w-8" />
+      <Skeleton className="h-2 w-24 rounded-full" />
+      <Skeleton className="h-3 w-8" />
+    </div>
+  </div>
+
+  {/* Chart body */}
+  <div className="space-y-3">
+    {[100, 82, 78, 61, 58, 55, 52, 50, 46, 44].map((widthPct, i) => (
+      <div key={i} className="flex items-center gap-3">
+        {/* Y-axis label */}
+        <Skeleton className="h-3 shrink-0 w-28" />
+        {/* Bar */}
+        <Skeleton
+          className="h-5 rounded-r-md"
+          style={{ width: `${widthPct}%` }}
+        />
+      </div>
+    ))}
+  </div>
+
+  {/* X-axis ticks */}
+  <div className="flex justify-between mt-3 pl-31">
+    {[0, 1, 2, 3, 4, 5, 6].map((n) => (
+      <Skeleton key={n} className="h-2.5 w-3" />
+    ))}
+  </div>
+</div>
 
       {/* Issues skeleton */}
       <div>
