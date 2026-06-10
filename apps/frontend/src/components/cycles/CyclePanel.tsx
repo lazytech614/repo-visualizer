@@ -28,9 +28,16 @@ export default function CyclePanel({ cycles, onSelectCycle }: Props) {
   }
 
   return (
-    <div className="font-['Segoe_UI',sans-serif] text-sm text-zinc-300 h-full">
-      <div className="px-3 py-2 text-xs font-semibold tracking-widest uppercase text-zinc-400 border-b border-zinc-700">
-        Circular Dependencies
+    <div className="font-['Segoe_UI',sans-serif] text-sm text-zinc-300 h-full flex-1">
+      <div className="flex items-center justify-between border-b border-zinc-700">
+        <p className="px-3 py-2 text-xs font-semibold tracking-widest uppercase text-zinc-400">
+          Circular Dependencies
+        </p>
+        {cycles.length > 0 && (
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-50 text-red-500 dark:bg-red-950 dark:text-red-400">
+            {cycles.length}
+          </span>
+        )}
       </div>
 
       {/* hint */}
@@ -38,7 +45,7 @@ export default function CyclePanel({ cycles, onSelectCycle }: Props) {
         Click a cycle to highlight it in the graph. Click again to deselect.
       </p>
 
-      <div className="p-3 space-y-3">
+      <div className="p-3 space-y-3 flex flex-col gap-y-2">
         {cycles.map((cycle, index) => {
           const isSelected = selectedIndex === index;
           return (

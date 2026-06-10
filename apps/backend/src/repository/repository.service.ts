@@ -2,7 +2,8 @@ import { Injectable } from "@nestjs/common";
 
 import {
   TreeService,
-  DependencyService
+  DependencyService,
+  findDeadFiles
 } from "@myapp/analyzer";
 
 @Injectable()
@@ -43,6 +44,20 @@ export class RepositoryService {
     return {
       cycles:
         dependencyResult.cycles,
+    };
+  }
+
+  getDeadFiles(path: string) {
+    const result =
+      this.dependencyService.analyze(
+        path,
+      );
+
+    return {
+      deadFiles:
+        findDeadFiles(
+          result.graph,
+        ),
     };
   }
 }

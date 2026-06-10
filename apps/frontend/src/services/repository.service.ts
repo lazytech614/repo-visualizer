@@ -99,3 +99,27 @@ export async function getCycles(
 
   return response.json();
 }
+
+export async function getDeadFiles(
+  repositoryPath: string,
+) {
+
+  const response =
+    await fetch(
+      `${API_URL}/repository/dead-files`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          path: repositoryPath,
+        }),
+      },
+    );
+
+  return response.json();
+}

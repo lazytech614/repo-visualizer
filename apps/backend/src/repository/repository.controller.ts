@@ -55,4 +55,15 @@ export class RepositoryController {
     return this.repositoryService
       .getCycles(body.path);
   }
+
+  @Post("dead-files")
+  getDeadFiles(
+    @Body()
+    body: ScanRepositoryDto,
+  ) {
+    return this.repositoryService
+      .getDeadFiles(
+        body.path,
+      );
+  }
 }
