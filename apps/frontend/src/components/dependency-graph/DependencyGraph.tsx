@@ -90,17 +90,17 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
           <>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full min-h-0">
               <div className="flex items-center border-b border-border shrink-0">
-                <TabsList className="flex-1 rounded-none bg-transparent h-auto p-0">
+                <TabsList className="flex-1 rounded-none bg-transparent h-auto m-2 mt-0">
                   <TabsTrigger
                     value="tree"
-                    className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-2.5 text-xs gap-1.5"
+                    className="flex-1 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-xs gap-1.5 p-2.5 rounded-sm"
                   >
                     <FolderTree className="w-3.5 h-3.5" />
                     Files
                   </TabsTrigger>
                   <TabsTrigger
                     value="details"
-                    className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-2.5 text-xs gap-1.5"
+                    className="flex-1 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-xs gap-1.5 p-2.5 rounded-sm"
                   >
                     <GitFork className="w-3.5 h-3.5" />
                     Details
