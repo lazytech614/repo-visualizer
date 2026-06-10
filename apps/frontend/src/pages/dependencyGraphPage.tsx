@@ -1,36 +1,37 @@
 import { useState } from "react";
-import { 
-  GitFork, 
-  Search, 
-  Loader2, 
-  FolderOpen, 
-  AlertCircle 
+import {
+  GitFork,
+  Search,
+  Loader2,
+  FolderOpen,
+  AlertCircle,
 } from "lucide-react";
 import DependencyGraph from "../components/dependency-graph/DependencyGraph";
-import { 
-  getCycles, 
-  getDeadFiles, 
-  getDependencies, 
-  getOverview, 
-  getRepositoryTree
+import {
+  getCycles,
+  getDeadFiles,
+  getDependencies,
+  getOverview,
+  getRepositoryTree,
 } from "../services/repository.service";
 import { type DependencyGraph as GraphType } from "../types/dependency";
 import OverviewDashboard from "../components/dashboard/OverviewDashboard";
 import { type OverviewStats } from "../types/overview";
 import CyclePanel from "../components/cycles/CyclePanel";
 import DeadFilesPanel from "../components/dead-files/DeadFilesPanel";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { Separator } from "../components/ui/separator";
 import { Badge } from "../components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import type { TreeNode } from "../types/repository";
 import AnalysisSkeleton from "../components/skeletons/AnalysisSkeleton";
 
@@ -44,7 +45,7 @@ export default function DependencyGraphPage() {
   const [highlightedCycle, setHighlightedCycle] = useState<string[]>([]);
   const [deadFiles, setDeadFiles] = useState<string[]>([]);
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
-  const [tree, setTree] = useState<TreeNode | null>(null)
+  const [tree, setTree] = useState<TreeNode | null>(null);
 
   async function analyze() {
     if (!path.trim()) return;
@@ -52,14 +53,19 @@ export default function DependencyGraphPage() {
       setLoading(true);
       setError(null);
 
-      const [graphResponse, overviewResponse, cycleResponse, deadFilesResponse, treeResponse] =
-        await Promise.all([
-          getDependencies(path),
-          getOverview(path),
-          getCycles(path),
-          getDeadFiles(path),
-          getRepositoryTree(path)
-        ]);
+      const [
+        graphResponse,
+        overviewResponse,
+        cycleResponse,
+        deadFilesResponse,
+        treeResponse,
+      ] = await Promise.all([
+        getDependencies(path),
+        getOverview(path),
+        getCycles(path),
+        getDeadFiles(path),
+        getRepositoryTree(path),
+      ]);
 
       setGraph(graphResponse.graph);
       setOverview(overviewResponse);
@@ -69,25 +75,34 @@ export default function DependencyGraphPage() {
       setHasAnalyzed(true);
     } catch (err) {
       console.error(err);
-      setError("Failed to analyze repository. Make sure the path is valid and accessible.");
+      setError(
+        "Failed to analyze repository. Make sure the path is valid and accessible."
+      );
     } finally {
       setLoading(false);
     }
   }
 
+  const hasIssues = cycles.length > 0 || deadFiles.length > 0;
+
+  // Determine default tab: prefer cycles if present, else dead-files
+  const defaultTab = cycles.length > 0 ? "cycles" : "dead-files";
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+
         {/* Input card */}
         <Card>
           <CardHeader className="pb-4">
             <CardTitle className="text-base">Analyze a repository</CardTitle>
             <CardDescription>
-              Enter an absolute path to a local repository to generate its dependency graph.
+              Enter an absolute path to a local repository to generate its
+              dependency graph.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <FolderOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -101,12 +116,12 @@ export default function DependencyGraphPage() {
               <Button onClick={analyze} disabled={loading || !path.trim()}>
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     Analyzing...
                   </>
                 ) : (
                   <>
-                    <Search className="w-4 h-4 mr-2" />
+                    <Search className="w-4 h-4" />
                     Analyze
                   </>
                 )}
@@ -128,6 +143,7 @@ export default function DependencyGraphPage() {
         {/* Results */}
         {hasAnalyzed && !loading && (
           <div className="space-y-8">
+
             {/* Overview */}
             {overview && (
               <div>
@@ -139,27 +155,55 @@ export default function DependencyGraphPage() {
               </div>
             )}
 
-            {/* Cycles + Dead files */}
-            {(cycles.length > 0 || deadFiles.length > 0) && (
+            {/* Issues — tabbed */}
+            {hasIssues && (
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <h2 className="text-sm font-medium">Issues</h2>
-                  {cycles.length > 0 && (
-                    <Badge variant="destructive" className="text-xs">
-                      {cycles.length} {cycles.length === 1 ? "cycle" : "cycles"}
-                    </Badge>
-                  )}
-                  {deadFiles.length > 0 && (
-                    <Badge variant="secondary" className="text-xs">
-                      {deadFiles.length} dead {deadFiles.length === 1 ? "file" : "files"}
-                    </Badge>
-                  )}
                   <Separator className="flex-1" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <CyclePanel cycles={cycles} onSelectCycle={setHighlightedCycle} />
-                  <DeadFilesPanel deadFiles={deadFiles} />
-                </div>
+
+                <Tabs defaultValue={defaultTab}>
+                  <TabsList className="mb-4">
+                    <TabsTrigger value="cycles" disabled={cycles.length === 0}>
+                      <span>Circular dependencies</span>
+                      {cycles.length > 0 && (
+                        <Badge
+                          variant="destructive"
+                          className="ml-2 text-xs px-1.5 py-0"
+                        >
+                          {cycles.length}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+
+                    <TabsTrigger
+                      value="dead-files"
+                      disabled={deadFiles.length === 0}
+                    >
+                      <span>Dead files</span>
+                      {deadFiles.length > 0 && (
+                        <Badge
+                          variant="secondary"
+                          className="ml-2 text-xs px-1.5 py-0"
+                        >
+                          {deadFiles.length}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="cycles">
+                    <CyclePanel
+                      cycles={cycles}
+                      onSelectCycle={setHighlightedCycle}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="dead-files">
+                    <DeadFilesPanel deadFiles={deadFiles} />
+                  </TabsContent>
+                </Tabs>
               </div>
             )}
 
@@ -172,7 +216,11 @@ export default function DependencyGraphPage() {
                 </div>
                 <Card>
                   <CardContent className="p-0 overflow-hidden rounded-xl">
-                    <DependencyGraph graph={graph} highlightedNodes={highlightedCycle} tree={tree} />
+                    <DependencyGraph
+                      graph={graph}
+                      highlightedNodes={highlightedCycle}
+                      tree={tree}
+                    />
                   </CardContent>
                 </Card>
               </div>
