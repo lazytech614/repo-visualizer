@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Repository {
+  id          String   @id @default(uuid())
+  name        String
+  path        String
+  createdAt   DateTime @default(now())
+
+  analyses    Analysis[]
+}
+
+model Analysis {
+  id            String   @id @default(uuid())
+  repositoryId  String
+
+  repository    Repository @relation(fields: [repositoryId], references: [id])
+
+  createdAt     DateTime @default(now())
+}
