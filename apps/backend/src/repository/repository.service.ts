@@ -30,7 +30,7 @@ export class RepositoryService {
       totalFiles: treeResult.stats.totalFiles,
       totalDirectories: treeResult.stats.totalDirectories,
       totalDependencies: dependencyResult.stats.totalDependencies,
-      dependencyDensity: dependencyResult.stats.dependencyDensity,
+      averageDependenciesPerFile: dependencyResult.stats.averageDependenciesPerFile,
       cycleCount: dependencyResult.cycles.length,
       mostImportedFiles: dependencyResult.stats.mostImportedFiles,
     };

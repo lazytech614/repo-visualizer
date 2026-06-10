@@ -34,6 +34,7 @@ import { Badge } from "../components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import type { TreeNode } from "../types/repository";
 import AnalysisSkeleton from "../components/skeletons/AnalysisSkeleton";
+import MostImportedFilesChart from "../components/charts/MostImportedFiles";
 
 export default function DependencyGraphPage() {
   const [path, setPath] = useState("");
@@ -151,6 +152,7 @@ export default function DependencyGraphPage() {
                   <h2 className="text-sm font-medium">Overview</h2>
                   <Separator className="flex-1" />
                 </div>
+                <MostImportedFilesChart data={overview.mostImportedFiles} />
                 <OverviewDashboard stats={overview} />
               </div>
             )}

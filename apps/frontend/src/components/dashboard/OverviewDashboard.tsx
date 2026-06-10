@@ -9,6 +9,8 @@ export default function OverviewDashboard({
   stats,
 }: Props) {
 
+  console.log("Stats: ", stats)
+
   return (
     <div className="w-full flex flex-wrap items-center justify-between gap-4">
       <StatsCard
@@ -35,14 +37,14 @@ export default function OverviewDashboard({
         value={stats.cycleCount}
       />
 
-      {/* <StatsCard
+      <StatsCard
         title="Dependency Density"
         value={
-          stats.dependencyDensity.toFixed(
+          stats.averageDependenciesPerFile.toFixed(
             2
           )
         }
-      /> */}
+      />
     </div>
   );
 }
