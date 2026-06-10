@@ -4,8 +4,6 @@ export function findDeadFiles(
   graph: DependencyGraph,
 ): string[] {
 
-  console.log("Graph: ", graph)
-
   const incoming =
     new Set<string>();
 

@@ -2,85 +2,53 @@ import { useState } from "react";
 import RepositoryTree from "../components/repository-tree/RepositoryTree";
 import { getRepositoryTree } from "../services/repository.service";
 import { type TreeNode } from "../types/repository";
+import { Search } from "lucide-react";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
 
 export default function RepositoryPage() {
-
-  const [path, setPath] =
-    useState("");
-
-  const [tree, setTree] =
-    useState<TreeNode | null>(null);
-
-  const [loading, setLoading] =
-    useState(false);
+  const [path, setPath] = useState("");
+  const [tree, setTree] = useState<TreeNode | null>(null);
+  const [loading, setLoading] = useState(false);
 
   async function analyze() {
-
     try {
-
       setLoading(true);
-
-      const response =
-        await getRepositoryTree(path);
-
+      const response = await getRepositoryTree(path);
       setTree(response.tree.tree);
-
     } catch (error) {
-
       console.error(error);
-
     } finally {
-
       setLoading(false);
-
     }
   }
 
   return (
-  <div style={{
-    display: "flex",
-    flexDirection: "column",
-    height: "100vh",
-    backgroundColor: "#1e1e1e",
-    color: "#cccccc",
-    fontFamily: "'Segoe UI', sans-serif",
-  }}>
-    {/* Top bar */}
-    <div style={{ padding: "8px 12px", borderBottom: "1px solid #333" }}>
-      <input
-        value={path}
-        onChange={(e) => setPath(e.target.value)}
-        placeholder="Repository path"
-        style={{
-          backgroundColor: "#3c3c3c",
-          border: "1px solid #555",
-          color: "#ccc",
-          padding: "4px 8px",
-          fontSize: "13px",
-          width: "300px",
-        }}
-      />
-      <button
-        onClick={analyze}
-        style={{
-          marginLeft: "8px",
-          backgroundColor: "#0e639c",
-          color: "#fff",
-          border: "none",
-          padding: "4px 12px",
-          cursor: "pointer",
-          fontSize: "13px",
-        }}
-      >
-        Analyze
-      </button>
-    </div>
+    <div className="flex flex-col h-screen bg-background text-foreground font-sans">
+      {/* Top bar */}
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
+        <Input
+          value={path}
+          onChange={(e: any) => setPath(e.target.value)}
+          onKeyDown={(e: any) => e.key === "Enter" && analyze()}
+          placeholder="Repository path"
+          className="w-80 h-8 text-sm"
+        />
+        <Button
+          onClick={analyze}
+          disabled={loading}
+          size="sm"
+          className="gap-1.5"
+        >
+          <Search className="w-3.5 h-3.5" />
+          {loading ? "Scanning..." : "Analyze"}
+        </Button>
+      </div>
 
-    {/* Sidebar-style tree */}
-    <div style={{ padding: "4px 0", overflowY: "auto", flex: 1 }}>
-      {loading && <p style={{ padding: "8px 12px" }}>Scanning...</p>}
-      {tree && <RepositoryTree tree={tree} />}
+      {/* Tree */}
+      <div className="flex-1 overflow-y-auto py-1">
+        {tree && <RepositoryTree tree={tree} />}
+      </div>
     </div>
-  </div>
-);
+  );
 }
