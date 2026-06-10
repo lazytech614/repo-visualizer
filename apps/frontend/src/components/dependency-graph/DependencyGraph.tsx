@@ -1,8 +1,9 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import ReactFlow, {
   Controls,
   MiniMap,
   Background,
+  BackgroundVariant,
   type Node,
 } from "reactflow";
 import "reactflow/dist/style.css";
@@ -10,10 +11,13 @@ import { GitFork, FolderTree, ChevronRight, PanelLeftClose, PanelLeftOpen } from
 
 import NodeDetails from "../sidebar/NodeDetails";
 import RepositoryTree from "../repository-tree/RepositoryTree";
+import FileNode from "./FileNode";
 import { convertToReactFlow } from "../../utils/react-flow-converter";
 import { type TreeNode } from "../../types/repository";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Button } from "../ui/button";
+
+const nodeTypes = { fileNode: FileNode };
 
 interface Props {
   graph: any;
@@ -35,7 +39,10 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
   const startX = useRef(0);
   const startWidth = useRef(0);
 
-  const { nodes, edges } = convertToReactFlow(graph, highlightedNodes);
+  const { nodes, edges } = useMemo(
+    () => convertToReactFlow(graph, highlightedNodes),
+    [graph, highlightedNodes]
+  );
 
   function handleNodeClick(_: any, node: Node) {
     setSelectedNode(node);
@@ -74,22 +81,14 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
         style={{ width: isCollapsed ? "40px" : `${sidebarWidth}px` }}
       >
         {isCollapsed ? (
-          /* Collapsed state — just a toggle button */
           <div className="flex flex-col items-center pt-2 gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-7 h-7"
-              onClick={() => setIsCollapsed(false)}
-            >
+            <Button variant="ghost" size="icon" className="w-7 h-7" onClick={() => setIsCollapsed(false)}>
               <PanelLeftOpen className="w-4 h-4" />
             </Button>
           </div>
         ) : (
           <>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full min-h-0">
-
-              {/* Tab triggers + collapse button */}
               <div className="flex items-center border-b border-border shrink-0">
                 <TabsList className="flex-1 rounded-none bg-transparent h-auto p-0">
                   <TabsTrigger
@@ -105,31 +104,20 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
                   >
                     <GitFork className="w-3.5 h-3.5" />
                     Details
-                    {selectedNode && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    )}
+                    {selectedNode && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
                   </TabsTrigger>
                 </TabsList>
-
-                {/* Collapse button */}
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-7 h-7 mr-1 shrink-0 cursor-pointer"
+                  variant="ghost" size="icon"
+                  className="w-7 h-7 mr-1 shrink-0"
                   onClick={() => setIsCollapsed(true)}
                 >
                   <PanelLeftClose className="w-4 h-4" />
                 </Button>
               </div>
 
-              {/* Files tab */}
-              <TabsContent
-                value="tree"
-                className="flex-1 mt-0 min-h-0 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden"
-              >
-                {tree ? (
-                  <RepositoryTree tree={tree} />
-                ) : (
+              <TabsContent value="tree" className="flex-1 mt-0 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden">
+                {tree ? <RepositoryTree tree={tree} /> : (
                   <div className="flex flex-col items-center justify-center h-full gap-2 text-center px-4">
                     <FolderTree className="w-8 h-8 text-muted-foreground/40" />
                     <p className="text-xs text-muted-foreground">No file tree available</p>
@@ -137,26 +125,18 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
                 )}
               </TabsContent>
 
-              {/* Details tab */}
-              <TabsContent
-                value="details"
-                className="flex-1 mt-0 min-h-0 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden"
-              >
+              <TabsContent value="details" className="flex-1 mt-0 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden">
                 {selectedNode ? (
                   <NodeDetails node={selectedNode} graph={graph} />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full gap-2 text-center px-4 pt-16">
                     <ChevronRight className="w-8 h-8 text-muted-foreground/40" />
-                    <p className="text-xs text-muted-foreground">
-                      Click a node in the graph to see its details
-                    </p>
+                    <p className="text-xs text-muted-foreground">Click a node in the graph to see its details</p>
                   </div>
                 )}
               </TabsContent>
-
             </Tabs>
 
-            {/* Drag handle */}
             <div
               onMouseDown={onMouseDown}
               className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary/40 active:bg-primary/60 transition-colors z-10"
@@ -170,12 +150,25 @@ export default function DependencyGraph({ graph, highlightedNodes, tree }: Props
         <ReactFlow
           nodes={nodes}
           edges={edges}
+          nodeTypes={nodeTypes}
           fitView
+          fitViewOptions={{ padding: 0.2 }}
           onNodeClick={handleNodeClick}
+          minZoom={0.1}
+          maxZoom={2}
         >
-          <Controls />
-          <MiniMap />
-          <Background />
+          <Controls className="[&>button]:bg-zinc-800 [&>button]:border-zinc-700 [&>button]:text-zinc-300 [&>button:hover]:bg-zinc-700" />
+          <MiniMap
+            style={{ background: "#1a1a2e", border: "1px solid #3f3f5a" }}
+            nodeColor={(node) => node.data?.highlighted ? "#ef4444" : "#4b5563"}
+            maskColor="rgba(0,0,0,0.4)"
+          />
+          <Background
+            variant={BackgroundVariant.Dots}
+            gap={20}
+            size={1}
+            color="#2a2a3e"
+          />
         </ReactFlow>
       </div>
 

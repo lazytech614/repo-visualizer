@@ -14,10 +14,6 @@ import {
   Braces,
 } from "lucide-react";
 
-interface IconProps {
-  className?: string;
-}
-
 export function getFileIcon(name: string, isLeaf: boolean): React.ReactNode {
   if (!isLeaf) return null; // folders handled separately
 

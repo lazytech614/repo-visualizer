@@ -21,7 +21,7 @@ function TreeItem({ node, depth }: TreeItemProps) {
     <div>
       <div
         className={cn(
-          "flex items-center gap-1 px-2 py-[3px] cursor-pointer rounded-sm mx-1",
+          "flex items-center gap-1 px-2 py-0.75 cursor-pointer rounded-sm mx-1",
           "hover:bg-accent/60 text-sm text-muted-foreground hover:text-foreground",
           "transition-colors duration-100 select-none"
         )}
