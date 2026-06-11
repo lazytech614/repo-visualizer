@@ -3,7 +3,8 @@ import { Injectable } from "@nestjs/common";
 import {
   TreeService,
   DependencyService,
-  findDeadFiles
+  findDeadFiles,
+  analyzeComplexity
 } from "@myapp/analyzer";
 
 @Injectable()
@@ -57,6 +58,18 @@ export class RepositoryService {
       deadFiles:
         findDeadFiles(
           result.graph,
+        ),
+    };
+  }
+
+  getComplexity(
+    repositoryPath: string,
+  ) {
+
+    return {
+      files:
+        analyzeComplexity(
+          repositoryPath,
         ),
     };
   }

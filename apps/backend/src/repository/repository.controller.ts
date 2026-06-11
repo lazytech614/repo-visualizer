@@ -66,4 +66,15 @@ export class RepositoryController {
         body.path,
       );
   }
+
+  @Post("complexity")
+  getComplexity(
+    @Body()
+    body: ScanRepositoryDto,
+  ) {
+    return this.repositoryService
+      .getComplexity(
+        body.path,
+      );
+  }
 }
