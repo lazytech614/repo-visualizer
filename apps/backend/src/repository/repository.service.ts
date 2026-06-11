@@ -8,7 +8,8 @@ import {
   TreeResponse,
   DependencyResponse,
   OverviewResponse,
-  Cycle
+  Cycle,
+  calculateHealthScore
 } from "@myapp/analyzer";
 
 @Injectable()
@@ -76,5 +77,35 @@ export class RepositoryService {
           repositoryPath,
         ),
     };
+  }
+
+  getHealthScore(path: string) {
+    const treeResult = this.treeService.generateTree(path);
+    const dependencyResult = this.dependencyService.analyze(path);
+    const complexityResult = analyzeComplexity(path);
+    const deadFiles = findDeadFiles(dependencyResult.graph);
+
+    const totalFileCount = treeResult.stats.totalFiles;
+    const averageComplexity =
+      complexityResult.length > 0
+        ? complexityResult.reduce((s, f) => s + f.complexity, 0) / complexityResult.length
+        : 0;
+    const maxComplexity =
+      complexityResult.length > 0
+        ? complexityResult[0].complexity  // already sorted descending by analyzeComplexity
+        : 0;
+    const highComplexityFileCount = complexityResult.filter(
+      f => f.complexity > 10  // cyclomatic complexity danger threshold
+    ).length;
+
+    return calculateHealthScore({
+      cycleCount: dependencyResult.cycles.length,
+      dependencyDensity: dependencyResult.stats.averageDependenciesPerFile,
+      deadFileCount: deadFiles.length,
+      totalFileCount,
+      averageComplexity,
+      maxComplexity,
+      highComplexityFileCount,
+    });
   }
 }

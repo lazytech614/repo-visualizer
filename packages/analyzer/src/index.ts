@@ -4,6 +4,8 @@ export * from "./types/complexity.js";
 export * from "./types/dependency.js";
 export * from "./types/overview.js";
 export * from "./types/cycle.js";
+export * from "./types/health.js";
 export * from "./dependency/dependency-service.js";
 export * from "./dependency/find-dead-files.js";
 export * from "./complexity/analyze-complexity.js";
+export * from "./health/calculate-health-score";

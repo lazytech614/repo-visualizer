@@ -77,4 +77,15 @@ export class RepositoryController {
         body.path,
       );
   }
+
+  @Post("health")
+  getHealthScore(
+    @Body()
+    body: ScanRepositoryDto,
+  ) {
+    return this.repositoryService
+      .getHealthScore(
+        body.path,
+      );
+  }
 }

@@ -15,6 +15,7 @@ import {
   getCycles,
   getDeadFiles,
   getDependencies,
+  getHealthScore,
   getOverview,
   getRepositoryTree,
 } from "../services/repository.service";
@@ -41,8 +42,9 @@ import AnalysisSkeleton from "../components/skeletons/AnalysisSkeleton";
 import MostImportedFilesChart from "../components/charts/MostImportedFiles";
 import type { Hotspot } from "../types/hotspot";
 import HotspotPanel from "../components/hotspot/HotspotPanel";
-import type { FileComplexity } from "@myapp/analyzer";
+import type { FileComplexity, HealthScore } from "@myapp/analyzer";
 import ComplexityPanel from "@/components/complexity/ComplexityPanel";
+import HealthScorePanel from "@/components/health/HealthScorePanel";
 
 export default function DependencyGraphPage() {
   const [path, setPath] = useState("");
@@ -57,6 +59,7 @@ export default function DependencyGraphPage() {
   const [tree, setTree] = useState<TreeNode | null>(null);
   const [hotspots, setHotspots] = useState<Hotspot[] | null>(null)
   const [complexityFiles, setComplexityFiles] = useState<FileComplexity[] | null>(null)
+  const [health, setHealth] = useState<HealthScore | null>(null)
 
   async function analyze() {
     if (!path.trim()) return;
@@ -70,7 +73,8 @@ export default function DependencyGraphPage() {
         cycleResponse,
         deadFilesResponse,
         treeResponse,
-        complexityResponse
+        complexityResponse,
+        healthResponse
       ] = await Promise.all([
         getDependencies(path),
         getOverview(path),
@@ -78,6 +82,7 @@ export default function DependencyGraphPage() {
         getDeadFiles(path),
         getRepositoryTree(path),
         getComplexity(path),
+        getHealthScore(path),
       ]);
 
       setGraph(graphResponse.graph);
@@ -87,6 +92,7 @@ export default function DependencyGraphPage() {
       setDeadFiles(deadFilesResponse.deadFiles);
       setTree(treeResponse.tree.tree);
       setComplexityFiles(complexityResponse.files)
+      setHealth(healthResponse)
       setHasAnalyzed(true);
     } catch (err) {
       console.error(err);
@@ -163,7 +169,7 @@ export default function DependencyGraphPage() {
             {overview && (
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-sm font-medium">Overview</h2>
+                  <h2 className="text-md font-medium">Overview</h2>
                   <Separator className="flex-1" />
                 </div>
                 <OverviewDashboard stats={overview} />
@@ -176,11 +182,16 @@ export default function DependencyGraphPage() {
               files={complexityFiles}
             />
 
+            {/* Health Score */}
+            {health && (
+              <HealthScorePanel health={health} />
+            )}
+
             {/* Issues — tabbed */}
             {hasIssues && (
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-sm font-medium">Issues</h2>
+                  <h2 className="text-md font-medium">Issues</h2>
                   <Separator className="flex-1" />
                 </div>
 
@@ -189,7 +200,7 @@ export default function DependencyGraphPage() {
                     {cycles.length > 0 && (
                       <TabsTrigger value="cycles" disabled={cycles.length === 0}>
                         <RefreshCwIcon className="h-4 w-4 sm:hidden" />
-                        <span className="hidden sm:inline">Circular dependencies</span>
+                        <span className="hidden sm:inline">Cyclic dependencies</span>
                         {cycles.length > 0 && (
                           <Badge
                             variant="destructive"
@@ -257,7 +268,7 @@ export default function DependencyGraphPage() {
             {graph && (
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-sm font-medium">Dependency graph</h2>
+                  <h2 className="text-md font-medium">Dependency graph</h2>
                   <Separator className="flex-1" />
                 </div>
                 <Card>

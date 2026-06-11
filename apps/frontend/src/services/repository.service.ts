@@ -145,3 +145,27 @@ export async function getComplexity(
 
   return response.json();
 }
+
+export async function getHealthScore(
+  repositoryPath: string,
+) {
+
+  const response =
+    await fetch(
+      `${API_URL}/repository/health`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          path: repositoryPath,
+        }),
+      },
+    );
+
+  return response.json();
+}
