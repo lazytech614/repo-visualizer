@@ -18,6 +18,8 @@ export class RepositoryController {
     @Body()
     body: ScanRepositoryDto,
   ) {
+
+    console.log("🔴🔴TREE BODY:", body);
     return {
       tree: await this.repositoryService.getTree(
         body,
