@@ -125,7 +125,7 @@ export default function ComplexityPanel({ files }: Props) {
 
               return (
                 <div key={file.file} className="flex items-center gap-2 py-1.5 border-b last:border-0">
-                  <span style = {{fontFamily: "monospace"}} className="text-[11px] text-[#e2e8f0] w-40 truncate shrink-0 text-right" title={file.file}>
+                  <span style = {{fontFamily: "monospace"}} className="text-[11px] text-[#e2e8f0] sm:w-40 truncate shrink-0 text-right" title={file.file}>
                     {name}
                   </span>
                   <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
