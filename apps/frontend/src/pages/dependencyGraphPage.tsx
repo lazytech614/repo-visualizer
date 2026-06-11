@@ -222,7 +222,7 @@ export default function DependencyGraphPage() {
               </div>
             </TabsContent>
 
-            {/* Health Score */}
+            {/* Health Score  */}
             <TabsContent value="health" className="mt-6">
               {health && <HealthScorePanel health={health} />}
             </TabsContent>
