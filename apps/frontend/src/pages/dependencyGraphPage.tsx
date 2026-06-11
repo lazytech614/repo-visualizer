@@ -51,6 +51,13 @@ import HealthScorePanel from "@/components/health/HealthScorePanel";
 import SummaryPanel from "@/components/summary/SummaryPanel";
 import type { HealthScore } from "@/types/health";
 import type { FileComplexity } from "@/types/complexity";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const TAB_VALUES = {
   Overview:         "overview",
@@ -216,88 +223,84 @@ export default function DependencyGraphPage() {
 
         {/* Input card */}
         <Card>
-  <CardHeader className="pb-4">
-    <CardTitle className="text-base">
-      Analyze a repository
-    </CardTitle>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base">
+              Analyze a repository
+            </CardTitle>
 
-    <CardDescription>
-      Analyze either a local repository
-      or a GitHub repository.
-    </CardDescription>
-  </CardHeader>
+            <CardDescription>
+              Analyze either a local repository
+              or a GitHub repository.
+            </CardDescription>
+          </CardHeader>
 
-  <CardContent>
-    <div className="space-y-3">
-      <select
-        value={source}
-        onChange={(e) =>
-          setSource(
-            e.target.value as
-              | "local"
-              | "github",
-          )
-        }
-        className="w-full border rounded-md px-3 py-2"
-      >
-        <option value="github">
-          GitHub Repository
-        </option>
+          <CardContent>
+            <div className="space-y-3 flex flex-col md:flex-row gap-x-3">
+                <div className="relative flex-1">
+                  <FolderOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
 
-        <option value="local">
-          Local Path
-        </option>
-      </select>
+                  <Input
+                    value={path}
+                    onChange={(e) =>
+                      setPath(e.target.value)
+                    }
+                    onKeyDown={(e) =>
+                      e.key === "Enter" &&
+                      analyze()
+                    }
+                    placeholder={
+                      source === "github"
+                        ? "https://github.com/facebook/react"
+                        : "/home/user/project"
+                    }
+                    className="pl-9 font-mono text-sm"
+                  />
+                </div>
+              <div className="flex flex-row gap-x-3">
+                <Select
+                  value={source}
+                  onValueChange={(
+                    value: "local" | "github",
+                  ) => setSource(value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select repository source" />
+                  </SelectTrigger>
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <FolderOpen
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
-          />
+                  <SelectContent className="space-y-6">
+                    <SelectItem value="github">
+                      GitHub Repository
+                    </SelectItem>
 
-          <Input
-            value={path}
-            onChange={(e) =>
-              setPath(
-                e.target.value,
-              )
-            }
-            onKeyDown={(e) =>
-              e.key === "Enter" &&
-              analyze()
-            }
-            placeholder={
-              source === "github"
-                ? "https://github.com/facebook/react"
-                : "/home/user/project"
-            }
-            className="pl-9 font-mono text-sm"
-          />
-        </div>
+                    <SelectItem value="local">
+                      Local Path
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
 
-        <Button
-          onClick={analyze}
-          disabled={
-            loading ||
-            !path.trim()
-          }
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Analyzing...
-            </>
-          ) : (
-            <>
-              <Search className="w-4 h-4" />
-              Analyze
-            </>
-          )}
-        </Button>
-      </div>
-    </div>
-  </CardContent>
-</Card>
+                <Button
+                  onClick={analyze}
+                  disabled={
+                    loading ||
+                    !path.trim()
+                  }
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="w-4 h-4" />
+                      Analyze
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {loading && <AnalysisSkeleton />}
 
