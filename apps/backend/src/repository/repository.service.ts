@@ -4,14 +4,18 @@ import {
   TreeService,
   DependencyService,
   findDeadFiles,
-  analyzeComplexity
+  analyzeComplexity,
+  TreeResponse,
+  DependencyResponse,
+  OverviewResponse,
+  Cycle
 } from "@myapp/analyzer";
 
 @Injectable()
 export class RepositoryService {
 
   private treeService = new TreeService();
-  getTree(path: string) {
+  getTree(path: string): TreeResponse {
 
     return this.treeService.generateTree(
       path
@@ -19,11 +23,11 @@ export class RepositoryService {
   }
 
   private dependencyService = new DependencyService();
-  getDependencies(path: string) {
+  getDependencies(path: string): DependencyResponse {
     return this.dependencyService.analyze(path);
   }
 
-  getOverview(path: string) {
+  getOverview(path: string): OverviewResponse {
     const treeResult = this.treeService.generateTree(path);
     const dependencyResult = this.dependencyService.analyze(path);
 
@@ -37,7 +41,7 @@ export class RepositoryService {
     };
   }
 
-  getCycles(path: string) {
+  getCycles(path: string): any {
 
     const dependencyResult =
       this.dependencyService.analyze(path);

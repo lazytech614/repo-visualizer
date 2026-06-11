@@ -1,3 +1,5 @@
+import { TreeStats } from "../tree/tree-stats-types";
+
 export interface TreeNode {
   name: string;
   path: string;
@@ -9,4 +11,5 @@ export interface TreeNode {
 
 export interface TreeResponse {
   tree: TreeNode;
+  stats: TreeStats;
 }

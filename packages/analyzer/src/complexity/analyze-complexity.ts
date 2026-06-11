@@ -1,5 +1,5 @@
 import { Project } from "ts-morph";
-import { FileComplexity } from "./complexity-types";
+import { FileComplexity } from "../types/complexity";
 
 export function analyzeComplexity(
   repositoryPath: string,

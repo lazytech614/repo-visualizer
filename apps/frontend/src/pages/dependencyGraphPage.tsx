@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import DependencyGraph from "../components/dependency-graph/DependencyGraph";
 import {
+  getComplexity,
   getCycles,
   getDeadFiles,
   getDependencies,
@@ -40,6 +41,8 @@ import AnalysisSkeleton from "../components/skeletons/AnalysisSkeleton";
 import MostImportedFilesChart from "../components/charts/MostImportedFiles";
 import type { Hotspot } from "../types/hotspot";
 import HotspotPanel from "../components/hotspot/HotspotPanel";
+import type { FileComplexity } from "@myapp/analyzer";
+import ComplexityPanel from "@/components/complexity/ComplexityPanel";
 
 export default function DependencyGraphPage() {
   const [path, setPath] = useState("");
@@ -53,6 +56,7 @@ export default function DependencyGraphPage() {
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [tree, setTree] = useState<TreeNode | null>(null);
   const [hotspots, setHotspots] = useState<Hotspot[] | null>(null)
+  const [complexityFiles, setComplexityFiles] = useState<FileComplexity[] | null>(null)
 
   async function analyze() {
     if (!path.trim()) return;
@@ -66,12 +70,14 @@ export default function DependencyGraphPage() {
         cycleResponse,
         deadFilesResponse,
         treeResponse,
+        complexityResponse
       ] = await Promise.all([
         getDependencies(path),
         getOverview(path),
         getCycles(path),
         getDeadFiles(path),
         getRepositoryTree(path),
+        getComplexity(path),
       ]);
 
       setGraph(graphResponse.graph);
@@ -80,6 +86,7 @@ export default function DependencyGraphPage() {
       setCycles(cycleResponse.cycles);
       setDeadFiles(deadFilesResponse.deadFiles);
       setTree(treeResponse.tree.tree);
+      setComplexityFiles(complexityResponse.files)
       setHasAnalyzed(true);
     } catch (err) {
       console.error(err);
@@ -163,6 +170,11 @@ export default function DependencyGraphPage() {
                 <MostImportedFilesChart data={overview.mostImportedFiles} />
               </div>
             )}
+
+            {/* Complexity Analysis */}
+            <ComplexityPanel
+              files={complexityFiles}
+            />
 
             {/* Issues — tabbed */}
             {hasIssues && (

@@ -123,3 +123,25 @@ export async function getDeadFiles(
 
   return response.json();
 }
+
+export async function getComplexity(
+  repositoryPath: string,
+) {
+
+  const response =
+    await fetch(
+      `${API_URL}/repository/complexity`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+        body: JSON.stringify({
+          path: repositoryPath,
+        }),
+      },
+    );
+
+  return response.json();
+}

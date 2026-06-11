@@ -5,6 +5,9 @@
     "moduleResolution": "NodeNext",
     "strict": true,
     "esModuleInterop": true,
+    "declaration": true,
+    "declarationDir": "./dist",
+    "emitDeclarationOnly": false,
     "types": ["node"],
     "outDir": "dist",
     "rootDir": "src"
