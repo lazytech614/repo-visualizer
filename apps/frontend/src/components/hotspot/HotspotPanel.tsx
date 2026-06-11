@@ -73,7 +73,7 @@ export default function HotspotPanel({
 
       <div className="flex items-center justify-between border-b border-zinc-700">
         <p className="px-3 py-2 text-xs font-semibold tracking-widest uppercase text-zinc-400">
-          Circular Dependencies
+          Hotspot
         </p>
         {hotspots.length > 0 && (
           <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-50 text-red-500 dark:bg-red-950 dark:text-red-400">
@@ -84,7 +84,7 @@ export default function HotspotPanel({
 
       {/* hint */}
       <p className="px-3 pt-2 text-xs text-zinc-500 italic">
-        Click a cycle to highlight it in the graph. Click again to deselect.
+        Hotspots are files with the highest dependency activity, making them the most critical parts of the codebase.
       </p>
 
       <div className="flex flex-col gap-y-4 mt-3">

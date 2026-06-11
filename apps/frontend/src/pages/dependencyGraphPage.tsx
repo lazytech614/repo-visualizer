@@ -91,7 +91,7 @@ export default function DependencyGraphPage() {
     }
   }
 
-  const hasIssues = cycles.length > 0 || deadFiles.length > 0;
+  const hasIssues = cycles.length > 0 || deadFiles.length > 0 || (hotspots && hotspots?.length > 0);
 
   // Determine default tab: prefer cycles if present, else dead-files
   const defaultTab = cycles.length > 0 ? "cycles" : "dead-files";
