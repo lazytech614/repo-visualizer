@@ -9,7 +9,9 @@ import {
   DependencyResponse,
   OverviewResponse,
   Cycle,
-  calculateHealthScore
+  calculateHealthScore,
+  generateSummaryPrompt,
+  AiService
 } from "@myapp/analyzer";
 
 @Injectable()
@@ -107,5 +109,40 @@ export class RepositoryService {
       maxComplexity,
       highComplexityFileCount,
     });
+  }
+
+  private aiService = new AiService(process.env.GEMINI_API_KEY!);
+  async getSummary(repositoryPath: string) {
+    const dependencyResult = this.dependencyService.analyze(repositoryPath);
+    const complexity = analyzeComplexity(repositoryPath);
+    const deadFiles = findDeadFiles(dependencyResult.graph);
+    const treeResult = this.treeService.generateTree(repositoryPath);
+
+    // reuse already-computed results instead of calling getHealthScore()
+    const health = calculateHealthScore({
+      cycleCount: dependencyResult.cycles.length,
+      dependencyDensity: dependencyResult.stats.averageDependenciesPerFile,
+      deadFileCount: deadFiles.length,
+      totalFileCount: treeResult.stats.totalFiles,
+      averageComplexity: complexity.length > 0
+        ? complexity.reduce((s, f) => s + f.complexity, 0) / complexity.length
+        : 0,
+      maxComplexity: complexity[0]?.complexity ?? 0,
+      highComplexityFileCount: complexity.filter(f => f.complexity > 10).length,
+    });
+
+    const prompt = generateSummaryPrompt({
+      totalFiles: dependencyResult.graph.nodes.length,
+      totalDependencies: dependencyResult.graph.edges.length,
+      cycleCount: dependencyResult.cycles.length,
+      deadFiles,
+      hotspots: [],
+      complexityFiles: complexity,
+      healthScore: health.score,
+    });
+
+    return {
+      summary: await this.aiService.generate(prompt),
+    };
   }
 }

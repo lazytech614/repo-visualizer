@@ -169,3 +169,27 @@ export async function getHealthScore(
 
   return response.json();
 }
+
+export async function getAiSummary(
+  repositoryPath: string,
+) {
+
+  const response =
+    await fetch(
+      `${API_URL}/repository/summary`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          path: repositoryPath,
+        }),
+      },
+    );
+
+  return response.json();
+}

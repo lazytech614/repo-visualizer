@@ -9,3 +9,5 @@ export * from "./dependency/dependency-service.js";
 export * from "./dependency/find-dead-files.js";
 export * from "./complexity/analyze-complexity.js";
 export * from "./health/calculate-health-score";
+export * from "./summary/generate-summary-prompt.js";
+export * from "./summary/ai-service.js";

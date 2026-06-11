@@ -3,6 +3,8 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
+/* @plugin "@tailwindcss/typography"; */
+
 @custom-variant dark (&:is(.dark *));
 
 code,
@@ -141,4 +143,20 @@ code {
   html {
     @apply font-sans;
   }
+}
+
+input:-webkit-autofill,
+*:not(input):-webkit-autofill {
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+
+.markdown-content a {
+  color: rgb(59 130 246);
+  text-decoration: underline;
+}
+
+.markdown-content a:visited {
+  color: rgb(147 51 234);
 }

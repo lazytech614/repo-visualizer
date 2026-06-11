@@ -27,6 +27,7 @@
     }
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "ts-morph": "^28.0.0",
     "typescript": "^6.0.3"
   },

@@ -6,7 +6,6 @@ import { detectHotspots } from "./hotspot-detector.js";
 export class DependencyService {
 
   analyze(path: string) {
-
     const graph = analyzeDependencies(path);
     const stats = calculateDependencyStats(graph);
     const cycles = detectCycles(graph);

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import DependencyGraph from "../components/dependency-graph/DependencyGraph";
 import {
+  getAiSummary,
   getComplexity,
   getCycles,
   getDeadFiles,
@@ -45,6 +46,7 @@ import HotspotPanel from "../components/hotspot/HotspotPanel";
 import type { FileComplexity, HealthScore } from "@myapp/analyzer";
 import ComplexityPanel from "@/components/complexity/ComplexityPanel";
 import HealthScorePanel from "@/components/health/HealthScorePanel";
+import SummaryPanel from "@/components/summary/SummaryPanel";
 
 export default function DependencyGraphPage() {
   const [path, setPath] = useState("");
@@ -60,6 +62,7 @@ export default function DependencyGraphPage() {
   const [hotspots, setHotspots] = useState<Hotspot[] | null>(null)
   const [complexityFiles, setComplexityFiles] = useState<FileComplexity[] | null>(null)
   const [health, setHealth] = useState<HealthScore | null>(null)
+  const [aiSummary, setAiSummary] = useState()
 
   async function analyze() {
     if (!path.trim()) return;
@@ -104,6 +107,18 @@ export default function DependencyGraphPage() {
     }
   }
 
+  async function generateAiSummary() {
+    if (!path.trim()) return;
+    try {
+      const summary = await getAiSummary(path);
+      setAiSummary(summary.summary)
+    }catch(err) {
+      console.error(err)
+    }finally{
+      console.log("AI Summary: ", aiSummary)
+    }
+  }
+
   const hasIssues = cycles.length > 0 || deadFiles.length > 0 || (hotspots && hotspots?.length > 0);
 
   // Determine default tab: prefer cycles if present, else dead-files
@@ -112,6 +127,8 @@ export default function DependencyGraphPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+
+        <Button onClick={generateAiSummary}>Generate AI Summary</Button>
 
         {/* Input card */}
         <Card>
@@ -175,6 +192,11 @@ export default function DependencyGraphPage() {
                 <OverviewDashboard stats={overview} />
                 <MostImportedFilesChart data={overview.mostImportedFiles} />
               </div>
+            )}
+
+            {/* AI Summary */}
+            {aiSummary && (
+              <SummaryPanel summary={aiSummary} />
             )}
 
             {/* Complexity Analysis */}

@@ -88,4 +88,15 @@ export class RepositoryController {
         body.path,
       );
   }
+
+  @Post("summary")
+  async getSummary(
+    @Body()
+    body: ScanRepositoryDto,
+  ) {
+    return this.repositoryService
+      .getSummary(
+        body.path,
+      );
+  }
 }
