@@ -1,5 +1,5 @@
-import type { HealthScore } from "@myapp/analyzer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import type { HealthScore } from "@/types/health";
 
 interface Props {
   health: HealthScore | null;

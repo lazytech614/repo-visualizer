@@ -46,10 +46,11 @@ import AnalysisSkeleton from "../components/skeletons/AnalysisSkeleton";
 import MostImportedFilesChart from "../components/charts/MostImportedFiles";
 import type { Hotspot } from "../types/hotspot";
 import HotspotPanel from "../components/hotspot/HotspotPanel";
-import type { FileComplexity, HealthScore } from "@myapp/analyzer";
 import ComplexityPanel from "@/components/complexity/ComplexityPanel";
 import HealthScorePanel from "@/components/health/HealthScorePanel";
 import SummaryPanel from "@/components/summary/SummaryPanel";
+import type { HealthScore } from "@/types/health";
+import type { FileComplexity } from "@/types/complexity";
 
 const TAB_VALUES = {
   Overview:         "overview",

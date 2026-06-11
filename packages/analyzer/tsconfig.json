@@ -6,6 +6,7 @@
     "strict": true,
     "esModuleInterop": true,
     "declaration": true,
+    "declarationMap": true,
     "declarationDir": "./dist",
     "emitDeclarationOnly": false,
     "types": ["node"],

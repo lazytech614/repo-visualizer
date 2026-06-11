@@ -3,7 +3,6 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@myapp/analyzer": ["../../packages/analyzer/src/index.ts"]
     }
   },
   "files": [],

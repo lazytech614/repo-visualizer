@@ -330,9 +330,6 @@ importers:
       '@fontsource-variable/geist':
         specifier: ^5.2.9
         version: 5.2.9
-      '@myapp/analyzer':
-        specifier: workspace:*
-        version: link:../../packages/analyzer
       '@tanstack/react-query':
         specifier: ^5.101.0
         version: 5.101.0(react@19.2.7)
