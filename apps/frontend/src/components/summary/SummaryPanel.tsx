@@ -86,7 +86,7 @@ export default function SummaryPanel({ summary }: Props) {
                   className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-muted"
                 >
                   <Icon className={`w-3 h-3 ${section.iconClass}`} />
-                  {section.title}
+                  <span className="hidden sm:inline">{section.title}</span>
                 </TabsTrigger>
               );
             })}

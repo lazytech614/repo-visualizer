@@ -9,6 +9,9 @@ import {
   Trash2Icon,
   AlertTriangleIcon,
   Sparkles,
+  LayoutDashboard,
+  HeartPulse,
+  CircleAlert,
 } from "lucide-react";
 import DependencyGraph from "../components/dependency-graph/DependencyGraph";
 import {
@@ -48,6 +51,16 @@ import ComplexityPanel from "@/components/complexity/ComplexityPanel";
 import HealthScorePanel from "@/components/health/HealthScorePanel";
 import SummaryPanel from "@/components/summary/SummaryPanel";
 
+const TAB_VALUES = {
+  Overview:         "overview",
+  HealthScore:      "health",
+  Issues:           "issues",
+  "AI Summary":     "ai-summary",
+  "Dependency Graph": "graph",
+} as const;
+
+type TabLabel = keyof typeof TAB_VALUES;
+
 export default function DependencyGraphPage() {
   const [path, setPath] = useState("");
   const [graph, setGraph] = useState<GraphType | null>(null);
@@ -64,6 +77,14 @@ export default function DependencyGraphPage() {
   const [health, setHealth] = useState<HealthScore | null>(null);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
+
+  const tabs: { label: TabLabel; icon: React.ReactNode }[] = [
+    { label: "Overview",          icon: <LayoutDashboard size={20} color="#60a5fa" /> },
+    { label: "HealthScore",       icon: <HeartPulse      size={20} color="#34d399" /> },
+    { label: "Issues",            icon: <CircleAlert     size={20} color="#f87171" /> },
+    { label: "AI Summary",        icon: <Sparkles        size={20} color="#a78bfa" /> },
+    { label: "Dependency Graph",  icon: <GitFork         size={20} color="#fb923c" /> },
+  ];
 
   async function analyze() {
     if (!path.trim()) return;
@@ -183,19 +204,13 @@ export default function DependencyGraphPage() {
         {/* Main tabs */}
         {hasAnalyzed && !loading && (
           <Tabs defaultValue="overview">
-            <TabsList className="w-full justify-start h-auto flex-wrap gap-1">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="health">Health score</TabsTrigger>
-              <TabsTrigger value="issues">
-                Issues
-                {hasIssues && (
-                  <Badge variant="destructive" className="ml-2 text-xs px-1.5 py-0">
-                    {issuesCount}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="ai-summary">AI summary</TabsTrigger>
-              <TabsTrigger value="graph">Dependency graph</TabsTrigger>
+            <TabsList className="w-full justify-start h-auto flex-wrap gap-1 min-h-10">
+              {tabs.map(({ label, icon }) => (
+                <TabsTrigger key={label} value={TAB_VALUES[label]}>
+                  <span className={`mr-1.5 flex items-center`}>{icon}</span>
+                  <span className="hidden md:inline">{label}</span>
+                </TabsTrigger>
+              ))}
             </TabsList>
 
             {/* Overview */}
