@@ -73,7 +73,7 @@ export default function HealthScorePanel({ health }: Props) {
 
         {/* Dimensions */}
         <div className="space-y-0">
-          {health.dimensions.map((d) => {
+          {health.dimensions.map((d: any) => {
             const icon = DIMENSION_ICONS[d.label] ?? "chart-bar";
             return (
               <div key={d.label} className="flex items-center gap-3 py-2 border-b last:border-0">
