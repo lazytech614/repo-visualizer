@@ -9,84 +9,80 @@ import { ScanRepositoryDto } from "./dto/scan-repository.dto";
 
 @Controller("repository")
 export class RepositoryController {
-
   constructor(
-    private readonly repositoryService:
-      RepositoryService
+    private readonly repositoryService: RepositoryService,
   ) {}
 
   @Post("tree")
-  getTree(
+  async getTree(
     @Body()
-    body: ScanRepositoryDto
+    body: ScanRepositoryDto,
   ) {
-
     return {
-      tree:
-        this.repositoryService.getTree(
-          body.path
-        ),
+      tree: await this.repositoryService.getTree(
+        body,
+      ),
     };
   }
 
   @Post("dependencies")
-  getDependencies(
+  async getDependencies(
     @Body()
     body: ScanRepositoryDto,
   ) {
-    return this.repositoryService
-      .getDependencies(body.path);
+    return this.repositoryService.getDependencies(
+      body,
+    );
   }
 
   @Post("overview")
-  getOverview(
+  async getOverview(
     @Body()
     body: ScanRepositoryDto,
   ) {
-    return this.repositoryService
-      .getOverview(body.path);
+    return this.repositoryService.getOverview(
+      body,
+    );
   }
 
   @Post("cycles")
-  getCycles(
+  async getCycles(
     @Body()
     body: ScanRepositoryDto,
   ) {
-    return this.repositoryService
-      .getCycles(body.path);
+    return this.repositoryService.getCycles(
+      body,
+    );
   }
 
   @Post("dead-files")
-  getDeadFiles(
+  async getDeadFiles(
     @Body()
     body: ScanRepositoryDto,
   ) {
-    return this.repositoryService
-      .getDeadFiles(
-        body.path,
-      );
+    return this.repositoryService.getDeadFiles(
+      body,
+    );
   }
 
   @Post("complexity")
-  getComplexity(
+  async getComplexity(
     @Body()
     body: ScanRepositoryDto,
   ) {
-    return this.repositoryService
-      .getComplexity(
-        body.path,
-      );
+    return this.repositoryService.getComplexity(
+      body,
+    );
   }
 
   @Post("health")
-  getHealthScore(
+  async getHealthScore(
     @Body()
     body: ScanRepositoryDto,
   ) {
-    return this.repositoryService
-      .getHealthScore(
-        body.path,
-      );
+    return this.repositoryService.getHealthScore(
+      body,
+    );
   }
 
   @Post("summary")
@@ -94,9 +90,8 @@ export class RepositoryController {
     @Body()
     body: ScanRepositoryDto,
   ) {
-    return this.repositoryService
-      .getSummary(
-        body.path,
-      );
+    return this.repositoryService.getSummary(
+      body,
+    );
   }
 }

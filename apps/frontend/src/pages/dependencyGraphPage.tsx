@@ -64,6 +64,7 @@ type TabLabel = keyof typeof TAB_VALUES;
 
 export default function DependencyGraphPage() {
   const [path, setPath] = useState("");
+  const [source, setSource] = useState<"local" | "github">("github");
   const [graph, setGraph] = useState<GraphType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +89,10 @@ export default function DependencyGraphPage() {
   ];
 
   async function analyze() {
-    if (!path.trim()) return;
+    if (!path.trim()) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -103,27 +107,81 @@ export default function DependencyGraphPage() {
         complexityResponse,
         healthResponse,
       ] = await Promise.all([
-        getDependencies(path),
-        getOverview(path),
-        getCycles(path),
-        getDeadFiles(path),
-        getRepositoryTree(path),
-        getComplexity(path),
-        getHealthScore(path),
+        getDependencies(
+          source,
+          path,
+        ),
+
+        getOverview(
+          source,
+          path,
+        ),
+
+        getCycles(
+          source,
+          path,
+        ),
+
+        getDeadFiles(
+          source,
+          path,
+        ),
+
+        getRepositoryTree(
+          source,
+          path,
+        ),
+
+        getComplexity(
+          source,
+          path,
+        ),
+
+        getHealthScore(
+          source,
+          path,
+        ),
       ]);
 
-      setGraph(graphResponse.graph);
-      setHotspots(graphResponse.hotspots);
-      setOverview(overviewResponse);
-      setCycles(cycleResponse.cycles);
-      setDeadFiles(deadFilesResponse.deadFiles);
-      setTree(treeResponse.tree.tree);
-      setComplexityFiles(complexityResponse.files);
-      setHealth(healthResponse);
+      setGraph(
+        graphResponse.graph,
+      );
+
+      setHotspots(
+        graphResponse.hotspots,
+      );
+
+      setOverview(
+        overviewResponse,
+      );
+
+      setCycles(
+        cycleResponse.cycles,
+      );
+
+      setDeadFiles(
+        deadFilesResponse.deadFiles,
+      );
+
+      setTree(
+        treeResponse.tree.tree,
+      );
+
+      setComplexityFiles(
+        complexityResponse.files,
+      );
+
+      setHealth(
+        healthResponse,
+      );
+
       setHasAnalyzed(true);
     } catch (err) {
       console.error(err);
-      setError("Failed to analyze repository. Make sure the path is valid and accessible.");
+
+      setError(
+        "Failed to analyze repository.",
+      );
     } finally {
       setLoading(false);
     }
@@ -133,8 +191,8 @@ export default function DependencyGraphPage() {
     if (!path.trim()) return;
     try {
       setSummaryLoading(true);
-      const summary = await getAiSummary(path);
-      setAiSummary(summary.summary);
+      const summary = await getAiSummary(source, path);
+      setAiSummary((summary as any).summary);
     } catch (err) {
       console.error(err);
     } finally {
@@ -158,40 +216,88 @@ export default function DependencyGraphPage() {
 
         {/* Input card */}
         <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base">Analyze a repository</CardTitle>
-            <CardDescription>
-              Enter an absolute path to a local repository to generate its dependency graph.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <FolderOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  value={path}
-                  onChange={(e: any) => setPath(e.target.value)}
-                  onKeyDown={(e: any) => e.key === "Enter" && analyze()}
-                  placeholder="/home/user/my-project"
-                  className="pl-9 font-mono text-sm"
-                />
-              </div>
-              <Button onClick={analyze} disabled={loading || !path.trim()}>
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <Search className="w-4 h-4" />
-                    Analyze
-                  </>
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+  <CardHeader className="pb-4">
+    <CardTitle className="text-base">
+      Analyze a repository
+    </CardTitle>
+
+    <CardDescription>
+      Analyze either a local repository
+      or a GitHub repository.
+    </CardDescription>
+  </CardHeader>
+
+  <CardContent>
+    <div className="space-y-3">
+      <select
+        value={source}
+        onChange={(e) =>
+          setSource(
+            e.target.value as
+              | "local"
+              | "github",
+          )
+        }
+        className="w-full border rounded-md px-3 py-2"
+      >
+        <option value="github">
+          GitHub Repository
+        </option>
+
+        <option value="local">
+          Local Path
+        </option>
+      </select>
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <FolderOpen
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
+          />
+
+          <Input
+            value={path}
+            onChange={(e) =>
+              setPath(
+                e.target.value,
+              )
+            }
+            onKeyDown={(e) =>
+              e.key === "Enter" &&
+              analyze()
+            }
+            placeholder={
+              source === "github"
+                ? "https://github.com/facebook/react"
+                : "/home/user/project"
+            }
+            className="pl-9 font-mono text-sm"
+          />
+        </div>
+
+        <Button
+          onClick={analyze}
+          disabled={
+            loading ||
+            !path.trim()
+          }
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Analyzing...
+            </>
+          ) : (
+            <>
+              <Search className="w-4 h-4" />
+              Analyze
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
+  </CardContent>
+</Card>
 
         {loading && <AnalysisSkeleton />}
 

@@ -1,195 +1,166 @@
+import type { DependencyGraph } from "@/types/dependency";
 import { type TreeResponse } from "../types/repository";
+import type { Hotspot } from "@/types/hotspot";
+import type { FileComplexity } from "@/types/complexity";
+import type { OverviewStats } from "@/types/overview";
+import type { HealthScore } from "@/types/health";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export async function getRepositoryTree(
-  repositoryPath: string
-): Promise<TreeResponse> {
+export type RepositorySource =
+  | "local"
+  | "github";
+
+export interface DependenciesResponse {
+  graph: DependencyGraph;
+  hotspots: Hotspot[];
+}
+
+export interface CyclesResponse {
+  cycles: CyclesResponse[];
+}
+
+export interface DeadFilesResponse {
+  deadFiles: string[];
+}
+
+export interface ComplexityResponse {
+  files: FileComplexity[];
+}
+
+function createRepositoryPayload(
+  source: RepositorySource,
+  value: string,
+) {
+  return source === "github"
+    ? {
+        source: "github",
+        githubUrl: value,
+      }
+    : {
+        source: "local",
+        path: value,
+      };
+}
+
+async function postRepositoryRequest<T>(
+  endpoint: string,
+  source: RepositorySource,
+  value: string,
+): Promise<T> {
+
   const response = await fetch(
-    `${API_URL}/repository/tree`,
+    `${API_URL}/repository/${endpoint}`,
     {
       method: "POST",
+
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type":
+          "application/json",
       },
-      body: JSON.stringify({
-        path: repositoryPath,
-      }),
-    }
+
+      body: JSON.stringify(
+        createRepositoryPayload(
+          source,
+          value,
+        ),
+      ),
+    },
   );
 
   if (!response.ok) {
     throw new Error(
-      `Request failed with status ${response.status}`
+      `Request failed with status ${response.status}`,
     );
   }
 
   return response.json();
+}
+
+export async function getRepositoryTree(
+  source: RepositorySource,
+  value: string,
+): Promise<TreeResponse> {
+  return postRepositoryRequest<TreeResponse>(
+    "tree",
+    source,
+    value,
+  );
 }
 
 export async function getDependencies(
-  repositoryPath: string
-) {
-  const response = await fetch(
-    `${API_URL}/repository/dependencies`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        path: repositoryPath,
-      }),
-    }
+  source: RepositorySource,
+  value: string,
+): Promise<DependenciesResponse> {
+  return postRepositoryRequest(
+    "dependencies",
+    source,
+    value,
   );
-
-  if (!response.ok) {
-    throw new Error(
-      `Request failed with status ${response.status}`
-    );
-  }
-
-  return response.json();
 }
 
 export async function getOverview(
-  repositoryPath: string
-) {
-
-  const response =
-    await fetch(
-      `${API_URL}/repository/overview`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify({
-          path: repositoryPath,
-        }),
-      }
-    );
-
-  return response.json();
+  source: RepositorySource,
+  value: string,
+): Promise<OverviewStats> {
+  return postRepositoryRequest(
+    "overview",
+    source,
+    value,
+  );
 }
 
 export async function getCycles(
-  repositoryPath: string
-) {
-
-  const response =
-    await fetch(
-      `${API_URL}/repository/cycles`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify({
-          path: repositoryPath,
-        }),
-      }
-    );
-
-  return response.json();
+  source: RepositorySource,
+  value: string,
+): Promise<any> {
+  return postRepositoryRequest(
+    "cycles",
+    source,
+    value,
+  );
 }
 
 export async function getDeadFiles(
-  repositoryPath: string,
-) {
-
-  const response =
-    await fetch(
-      `${API_URL}/repository/dead-files`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify({
-          path: repositoryPath,
-        }),
-      },
-    );
-
-  return response.json();
+  source: RepositorySource,
+  value: string,
+): Promise<any> {
+  return postRepositoryRequest(
+    "dead-files",
+    source,
+    value,
+  );
 }
 
 export async function getComplexity(
-  repositoryPath: string,
-) {
-
-  const response =
-    await fetch(
-      `${API_URL}/repository/complexity`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-        body: JSON.stringify({
-          path: repositoryPath,
-        }),
-      },
-    );
-
-  return response.json();
+  source: RepositorySource,
+  value: string,
+): Promise<ComplexityResponse> {
+  return postRepositoryRequest(
+    "complexity",
+    source,
+    value,
+  );
 }
 
 export async function getHealthScore(
-  repositoryPath: string,
-) {
-
-  const response =
-    await fetch(
-      `${API_URL}/repository/health`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify({
-          path: repositoryPath,
-        }),
-      },
-    );
-
-  return response.json();
+  source: RepositorySource,
+  value: string,
+): Promise<HealthScore> {
+  return postRepositoryRequest(
+    "health",
+    source,
+    value,
+  );
 }
 
 export async function getAiSummary(
-  repositoryPath: string,
+  source: RepositorySource,
+  value: string,
 ) {
-
-  const response =
-    await fetch(
-      `${API_URL}/repository/summary`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify({
-          path: repositoryPath,
-        }),
-      },
-    );
-
-  return response.json();
+  return postRepositoryRequest(
+    "summary",
+    source,
+    value,
+  );
 }
