@@ -67,7 +67,7 @@ export default function SummaryPanel({ summary }: Props) {
   const defaultTab = sections[0]?.slug ?? "overview";
 
   return (
-    <Card className="w-full">
+    <Card className="w-full mb-4">
       <CardHeader className="pb-3">
         <CardTitle className="text-xs font-medium">AI summary</CardTitle>
         <CardDescription className="text-xs text-muted-foreground">

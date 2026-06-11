@@ -8,6 +8,7 @@ import {
   RefreshCwIcon,
   Trash2Icon,
   AlertTriangleIcon,
+  Sparkles,
 } from "lucide-react";
 import DependencyGraph from "../components/dependency-graph/DependencyGraph";
 import {
@@ -35,7 +36,6 @@ import {
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription } from "../components/ui/alert";
-import { Separator } from "../components/ui/separator";
 import { Badge } from "../components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import type { TreeNode } from "../types/repository";
@@ -59,16 +59,18 @@ export default function DependencyGraphPage() {
   const [deadFiles, setDeadFiles] = useState<string[]>([]);
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [tree, setTree] = useState<TreeNode | null>(null);
-  const [hotspots, setHotspots] = useState<Hotspot[] | null>(null)
-  const [complexityFiles, setComplexityFiles] = useState<FileComplexity[] | null>(null)
-  const [health, setHealth] = useState<HealthScore | null>(null)
-  const [aiSummary, setAiSummary] = useState()
+  const [hotspots, setHotspots] = useState<Hotspot[] | null>(null);
+  const [complexityFiles, setComplexityFiles] = useState<FileComplexity[] | null>(null);
+  const [health, setHealth] = useState<HealthScore | null>(null);
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   async function analyze() {
     if (!path.trim()) return;
     try {
       setLoading(true);
       setError(null);
+      setAiSummary(null);
 
       const [
         graphResponse,
@@ -77,7 +79,7 @@ export default function DependencyGraphPage() {
         deadFilesResponse,
         treeResponse,
         complexityResponse,
-        healthResponse
+        healthResponse,
       ] = await Promise.all([
         getDependencies(path),
         getOverview(path),
@@ -89,19 +91,17 @@ export default function DependencyGraphPage() {
       ]);
 
       setGraph(graphResponse.graph);
-      setHotspots(graphResponse.hotspots)
+      setHotspots(graphResponse.hotspots);
       setOverview(overviewResponse);
       setCycles(cycleResponse.cycles);
       setDeadFiles(deadFilesResponse.deadFiles);
       setTree(treeResponse.tree.tree);
-      setComplexityFiles(complexityResponse.files)
-      setHealth(healthResponse)
+      setComplexityFiles(complexityResponse.files);
+      setHealth(healthResponse);
       setHasAnalyzed(true);
     } catch (err) {
       console.error(err);
-      setError(
-        "Failed to analyze repository. Make sure the path is valid and accessible."
-      );
+      setError("Failed to analyze repository. Make sure the path is valid and accessible.");
     } finally {
       setLoading(false);
     }
@@ -110,33 +110,36 @@ export default function DependencyGraphPage() {
   async function generateAiSummary() {
     if (!path.trim()) return;
     try {
+      setSummaryLoading(true);
       const summary = await getAiSummary(path);
-      setAiSummary(summary.summary)
-    }catch(err) {
-      console.error(err)
-    }finally{
-      console.log("AI Summary: ", aiSummary)
+      setAiSummary(summary.summary);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSummaryLoading(false);
     }
   }
 
-  const hasIssues = cycles.length > 0 || deadFiles.length > 0 || (hotspots && hotspots?.length > 0);
-
-  // Determine default tab: prefer cycles if present, else dead-files
-  const defaultTab = cycles.length > 0 ? "cycles" : "dead-files";
+  const issuesCount =
+    cycles.length + deadFiles.length + (hotspots?.length ?? 0);
+  const hasIssues = issuesCount > 0;
+  const issueTabCount =
+    (cycles.length > 0 ? 1 : 0) +
+    (deadFiles.length > 0 ? 1 : 0) +
+    ((hotspots?.length ?? 0) > 0 ? 1 : 0);
+  const defaultIssueTab =
+    cycles.length > 0 ? "cycles" : deadFiles.length > 0 ? "dead-files" : "hotspots";
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-
-        <Button onClick={generateAiSummary}>Generate AI Summary</Button>
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
 
         {/* Input card */}
         <Card>
           <CardHeader className="pb-4">
             <CardTitle className="text-base">Analyze a repository</CardTitle>
             <CardDescription>
-              Enter an absolute path to a local repository to generate its
-              dependency graph.
+              Enter an absolute path to a local repository to generate its dependency graph.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -170,7 +173,6 @@ export default function DependencyGraphPage() {
 
         {loading && <AnalysisSkeleton />}
 
-        {/* Error */}
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -178,121 +180,151 @@ export default function DependencyGraphPage() {
           </Alert>
         )}
 
-        {/* Results */}
+        {/* Main tabs */}
         {hasAnalyzed && !loading && (
-          <div className="space-y-8">
+          <Tabs defaultValue="overview">
+            <TabsList className="w-full justify-start h-auto flex-wrap gap-1">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="health">Health score</TabsTrigger>
+              <TabsTrigger value="issues">
+                Issues
+                {hasIssues && (
+                  <Badge variant="destructive" className="ml-2 text-xs px-1.5 py-0">
+                    {issuesCount}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="ai-summary">AI summary</TabsTrigger>
+              <TabsTrigger value="graph">Dependency graph</TabsTrigger>
+            </TabsList>
 
             {/* Overview */}
-            {overview && (
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-md font-medium">Overview</h2>
-                  <Separator className="flex-1" />
-                </div>
-                <OverviewDashboard stats={overview} />
-                <MostImportedFilesChart data={overview.mostImportedFiles} />
+            <TabsContent value="overview" className="space-y-6 mt-6">
+              {overview && <OverviewDashboard stats={overview} />}
+              <div className="flex gap-4 flex-col lg:flex-row">
+                {overview && <MostImportedFilesChart data={overview.mostImportedFiles} />}
+                {complexityFiles && <ComplexityPanel files={complexityFiles} />}
               </div>
-            )}
-
-            {/* AI Summary */}
-            {aiSummary && (
-              <SummaryPanel summary={aiSummary} />
-            )}
-
-            {/* Complexity Analysis */}
-            <ComplexityPanel
-              files={complexityFiles}
-            />
+            </TabsContent>
 
             {/* Health Score */}
-            {health && (
-              <HealthScorePanel health={health} />
-            )}
+            <TabsContent value="health" className="mt-6">
+              {health && <HealthScorePanel health={health} />}
+            </TabsContent>
 
-            {/* Issues — tabbed */}
-            {hasIssues && (
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-md font-medium">Issues</h2>
-                  <Separator className="flex-1" />
+            {/* Issues */}
+            <TabsContent value="issues" className="mt-6">
+              {!hasIssues ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-muted mb-3">
+                    <AlertCircle className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm font-medium">No issues found</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    This repository has no cycles, dead files, or hotspots.
+                  </p>
                 </div>
-
-                <Tabs defaultValue={defaultTab}>
-                  <TabsList className="mb-4">
-                    {cycles.length > 0 && (
-                      <TabsTrigger value="cycles" disabled={cycles.length === 0}>
-                        <RefreshCwIcon className="h-4 w-4 sm:hidden" />
-                        <span className="hidden sm:inline">Cyclic dependencies</span>
-                        {cycles.length > 0 && (
-                          <Badge
-                            variant="destructive"
-                            className="ml-2 text-xs px-1.5 py-0"
-                          >
+              ) : (
+                <Tabs defaultValue={defaultIssueTab}>
+                  {issueTabCount > 1 && (
+                    <TabsList className="mb-4">
+                      {cycles.length > 0 && (
+                        <TabsTrigger value="cycles">
+                          <RefreshCwIcon className="h-4 w-4 sm:hidden" />
+                          <span className="hidden sm:inline">Cyclic dependencies</span>
+                          <Badge variant="destructive" className="ml-2 text-xs px-1.5 py-0">
                             {cycles.length}
                           </Badge>
-                        )}
-                      </TabsTrigger>
-                    )}
-
-                    {deadFiles.length > 0 && (
-                      <TabsTrigger
-                        value="dead-files"
-                        disabled={deadFiles.length === 0}
-                      >
-                        <Trash2Icon className="h-4 w-4 sm:hidden" />
-                        <span className="hidden sm:inline">Dead files</span>
-                        {deadFiles.length > 0 && (
-                          <Badge
-                            variant="secondary"
-                            className="ml-2 text-xs px-1.5 py-0 border border-white/20"
-                          >
+                        </TabsTrigger>
+                      )}
+                      {deadFiles.length > 0 && (
+                        <TabsTrigger value="dead-files">
+                          <Trash2Icon className="h-4 w-4 sm:hidden" />
+                          <span className="hidden sm:inline">Dead files</span>
+                          <Badge variant="secondary" className="ml-2 text-xs px-1.5 py-0 border border-white/20">
                             {deadFiles.length}
                           </Badge>
-                        )}
-                      </TabsTrigger>
-                    )}
-
-                    {hotspots &&hotspots.length > 0 && (
-                      <TabsTrigger value="hotspots" disabled={hotspots.length === 0}>
-                      <AlertTriangleIcon className="h-4 w-4 sm:hidden" />
-                      <span className="hidden sm:inline">Hotspots</span>
-                      {hotspots.length > 0 && (
-                        <Badge
-                          variant="destructive"
-                          className="ml-2 text-xs px-1.5 py-0"
-                        >
-                          {hotspots.length}
-                        </Badge>
+                        </TabsTrigger>
                       )}
-                    </TabsTrigger>
-                    )}
-                  </TabsList>
-
+                      {hotspots && hotspots.length > 0 && (
+                        <TabsTrigger value="hotspots">
+                          <AlertTriangleIcon className="h-4 w-4 sm:hidden" />
+                          <span className="hidden sm:inline">Hotspots</span>
+                          <Badge variant="destructive" className="ml-2 text-xs px-1.5 py-0">
+                            {hotspots.length}
+                          </Badge>
+                        </TabsTrigger>
+                      )}
+                    </TabsList>
+                  )}
                   <TabsContent value="cycles">
-                    <CyclePanel
-                      cycles={cycles}
-                      onSelectCycle={setHighlightedCycle}
-                    />
+                    <CyclePanel cycles={cycles} onSelectCycle={setHighlightedCycle} />
                   </TabsContent>
-
                   <TabsContent value="dead-files">
                     <DeadFilesPanel deadFiles={deadFiles} />
                   </TabsContent>
-
-                  <TabsContent value="hotspots" className="flex-1 mt-0 min-h-0 overflow-y-auto">
-                    <HotspotPanel hotspots={hotspots || []} />
+                  <TabsContent value="hotspots">
+                    <HotspotPanel hotspots={hotspots ?? []} />
                   </TabsContent>
                 </Tabs>
-              </div>
-            )}
+              )}
+            </TabsContent>
 
-            {/* Graph */}
-            {graph && (
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-md font-medium">Dependency graph</h2>
-                  <Separator className="flex-1" />
+            {/* AI Summary */}
+            <TabsContent value="ai-summary" className="mt-6 space-y-4">
+              {!aiSummary ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-muted mb-3">
+                    <Sparkles className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm font-medium">No summary generated yet</p>
+                  <p className="text-xs text-muted-foreground mt-1 mb-4">
+                    Generate an AI-powered architectural analysis of your repository.
+                  </p>
+                  <Button onClick={generateAiSummary} disabled={summaryLoading}>
+                    {summaryLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        Generate AI summary
+                      </>
+                    )}
+                  </Button>
                 </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={generateAiSummary}
+                      disabled={summaryLoading}
+                    >
+                      {summaryLoading ? (
+                        <>
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          Regenerating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-3 h-3" />
+                          Regenerate
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <SummaryPanel summary={aiSummary} />
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Dependency Graph */}
+            <TabsContent value="graph" className="mt-6">
+              {graph && (
                 <Card>
                   <CardContent className="p-0 overflow-hidden rounded-xl">
                     <DependencyGraph
@@ -302,9 +334,10 @@ export default function DependencyGraphPage() {
                     />
                   </CardContent>
                 </Card>
-              </div>
-            )}
-          </div>
+              )}
+            </TabsContent>
+
+          </Tabs>
         )}
 
         {/* Empty state */}
@@ -319,6 +352,7 @@ export default function DependencyGraphPage() {
             </p>
           </div>
         )}
+
       </div>
     </div>
   );

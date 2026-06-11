@@ -61,7 +61,7 @@ export default function ComplexityPanel({ files }: Props) {
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-xs font-medium">
           High complexity files
@@ -71,7 +71,6 @@ export default function ComplexityPanel({ files }: Props) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-
         {/* Summary stats */}
         <div className="grid grid-cols-3 gap-3">
           {[
@@ -119,18 +118,14 @@ export default function ComplexityPanel({ files }: Props) {
               No files match your search.
             </p>
           ) : (
-            paginated.map((file, i) => {
+            paginated.map((file) => {
               const name = file.file.split("/").pop();
               const pct  = Math.round((file.complexity / globalMax) * 100);
               const { label, variant } = getSeverity(file.complexity, globalMax);
-              const globalIndex = (page - 1) * PAGE_SIZE + i + 1;
 
               return (
                 <div key={file.file} className="flex items-center gap-2 py-1.5 border-b last:border-0">
-                  <span className="text-xs text-muted-foreground w-6 text-right shrink-0">
-                    {globalIndex}
-                  </span>
-                  <span className="text-sm text-muted-foreground w-40 truncate shrink-0" title={file.file}>
+                  <span style = {{fontFamily: "monospace"}} className="text-[11px] text-[#e2e8f0] w-40 truncate shrink-0 text-right" title={file.file}>
                     {name}
                   </span>
                   <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">

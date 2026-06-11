@@ -7,7 +7,7 @@ const App = () => {
     <>
       <Header />
       {/*  <RepositoryPage /> */}
-    <DependencyGraphPage />
+      <DependencyGraphPage />
     </>
   )
 }
