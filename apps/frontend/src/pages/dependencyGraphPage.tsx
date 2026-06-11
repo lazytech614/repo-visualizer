@@ -218,7 +218,7 @@ export default function DependencyGraphPage() {
     cycles.length > 0 ? "cycles" : deadFiles.length > 0 ? "dead-files" : "hotspots";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background mt-20">
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
 
         {/* Input card */}

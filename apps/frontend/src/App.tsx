@@ -1,13 +1,13 @@
+import Footer from "./components/global/Footer"
 import Header from "./components/global/Header"
 import DependencyGraphPage from "./pages/dependencyGraphPage"
-// import RepositoryPage from "./pages/repositoryPage"
 
 const App = () => {
   return (
     <>
       <Header />
-      {/*  <RepositoryPage /> */}
       <DependencyGraphPage />
+      <Footer />
     </>
   )
 }
