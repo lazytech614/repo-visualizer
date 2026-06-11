@@ -43,14 +43,16 @@ export default function ComplexityPanel({ files }: Props) {
 
   if (!files || files.length === 0) return null;
 
-  const globalMax = files[0].complexity;
-  const avg = Math.round(files.reduce((s, f) => s + f.complexity, 0) / files.length);
-
   // Apply limit first, then search
   const limited = limit === "all" ? files : files.slice(0, Number(limit));
   const filtered = search.trim()
     ? limited.filter(f => f.file.toLowerCase().includes(search.trim().toLowerCase()))
     : limited;
+
+  const globalMax = limited[0]?.complexity ?? 0;
+  const avg = limited.length
+    ? Math.round(limited.reduce((s, f) => s + f.complexity, 0) / limited.length)
+    : 0;
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   // Reset to page 1 when filters change
@@ -73,7 +75,7 @@ export default function ComplexityPanel({ files }: Props) {
         {/* Summary stats */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: "Files analysed", value: files.length },
+            { label: "Files analysed", value: limited.length },
             { label: "Avg complexity",  value: avg },
             { label: "Highest score",   value: globalMax },
           ].map(stat => (

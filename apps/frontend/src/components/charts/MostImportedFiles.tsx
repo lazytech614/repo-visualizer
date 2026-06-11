@@ -87,7 +87,6 @@ export default function MostImportedFilesChart({ data }: Props) {
   if (!data || data.length === 0) return null;
 
   const max = data[0].count;
-  const total = data.length;
 
   const chartData = data.map((item) => ({
     ...item,
@@ -157,9 +156,8 @@ export default function MostImportedFilesChart({ data }: Props) {
               cursor={{ fill: "hsl(var(--muted))", radius: 4 }}
             />
             <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={28}>
-              {chartData.map((entry, index) => {
-                // index 0 = most imported = red (t=0), last = green (t=1)
-                const t = total === 1 ? 0 : index / (total - 1);
+              {chartData.map((entry) => {
+                const t = max === 1 ? 0 : 1 - (entry.count - 1) / (max - 1);
                 return (
                   <Cell
                     key={entry.file}
