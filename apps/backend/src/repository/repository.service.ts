@@ -64,17 +64,10 @@ export class RepositoryService {
   async getTree(
     body: ScanRepositoryDto,
   ): Promise<TreeResponse> {
-    console.log("🔴🔴SERVICE BODY:", body);
-
     const repositoryPath =
       await this.resolveRepositoryPath(
         body,
       );
-
-    console.log(
-    "🔴🔴RESOLVED PATH:",
-    repositoryPath,
-  );
 
     try {
       return this.treeService.generateTree(
@@ -190,7 +183,7 @@ export class RepositoryService {
       await this.resolveRepositoryPath(
         body,
       );
-
+      
     try {
       const result =
         this.dependencyService.analyze(
